@@ -30,7 +30,7 @@ clean:
 
 uninstall_all: uninstall clean
 
-		rm -rf .venv/
+		rm -rf .venv pyproject.toml uv.lock
 
 lint:
 		@clear
