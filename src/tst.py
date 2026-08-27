@@ -47,7 +47,7 @@ class PacManTolls(ConfigurationFileTools):
 
     """   """
 
-    def __init__(self, config_path: str = ):
+    def __init__(self, config_path: str = "./configuration.json"):
 
         """   """
 
@@ -62,5 +62,22 @@ class PacManTolls(ConfigurationFileTools):
 
         d_config: Dict = json.loads(s_config)
 
+        return d_config
 
 
+
+def main():
+    try:
+        config = PacManTolls().get_configuration_dict()
+        print(config)
+
+    except PermissionError as e:
+        print(e)
+
+    except FileNotFoundError as e:
+        print(e)
+
+    except ValueError as e:
+        print(e)
+
+main()
