@@ -1,5 +1,6 @@
-from typing import List, Dict, Set, Tuple, Any
+from typing import List, Dict
 import json
+import sys
 
 class ConfigurationFileTools:
 
@@ -34,25 +35,42 @@ class ConfigurationFileTools:
                 return {"config": config, "comments": comments}
                     
         except PermissionError:
-            raise PermissionError("You Don't have Permission To Read"
-                                  f" Configuration file: {path}")
+            raise PermissionError("\033[91mYou Don't have Permission To Read"
+                                  " Configuration file: \033[94m"
+                                  f"{path}\033[0m")
+
         except FileNotFoundError:
             raise FileNotFoundError(
-                f"Configuration file not found: {path}")
+                f"\033[91mConfiguration file \033[94m'{path}'"
+                "\033[91m Not Found\033[0m")
+
         except Exception as e:
-             raise ValueError(f"{e}"
-                               "\nAn Error apears in configuration.json File")
+             raise ValueError(f"\033[91m{e}"
+                               "\nAn Error apears in configuration.json"
+                               " File\033[0m")
+
 
 class PacManTolls(ConfigurationFileTools):
 
     """   """
 
-    def __init__(self, config_path: str = "./configuration.json"):
+    def __init__(self):
 
         """   """
 
-        self.config_path: str = config_path
+        self.config_path: str = self.get_config_path()
 
+    def get_config_path(self) -> str:
+
+        """   """
+
+        if  len(sys.argv) != 2 or not sys.argv[1]:
+             raise ValueError("\033[91mYou Must gave Only two"
+                              " argements:\n\n Input Example:\n\n\t"
+                              "\033[92mpython3 \033[93mpac-man.py"
+                              " \033[94mconfigurationfile.json\n\033[0m")
+        else:
+             return sys.argv[1]
 
     def get_configuration_dict(self) -> Dict:
 
@@ -60,24 +78,22 @@ class PacManTolls(ConfigurationFileTools):
 
         s_config: str = self.separate_content_and_comments(self.config_path)["config"]
 
-        d_config: Dict = json.loads(s_config)
+        config_d: Dict = json.loads(s_config)
 
-        return d_config
+        return config_d
 
 
 
 def main():
     try:
-        config = PacManTolls().get_configuration_dict()
-        print(config)
+        config_d = PacManTolls().get_configuration_dict()
+        print(config_d)
 
-    except PermissionError as e:
+    except (PermissionError, FileNotFoundError, ValueError, json.JSONDecodeError) as e:
         print(e)
 
-    except FileNotFoundError as e:
+    except Exception as e:
         print(e)
 
-    except ValueError as e:
-        print(e)
 
 main()
