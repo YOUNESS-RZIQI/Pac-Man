@@ -64,11 +64,12 @@ class PacManTolls(ConfigurationFileTools):
 
         """   """
 
-        if  len(sys.argv) != 2 or not sys.argv[1]:
-             raise ValueError("\033[91mYou Must gave Only two"
+        if  len(sys.argv) != 2 or not sys.argv[1] or not sys.argv[1].endswith(".json"):
+             raise ValueError("\033[91mYou Must gave Correct two"
                               " argements:\n\n Input Example:\n\n\t"
-                              "\033[92mpython3 \033[93mpac-man.py"
-                              " \033[94mconfigurationfile.json\n\033[0m")
+                              "\033[92mpython3 \033[93mEntry_point.py"
+                              " \033[94mconfigurationfile.json "
+                              "(Must be json)\n\033[0m")
         else:
              return sys.argv[1]
 
@@ -85,6 +86,9 @@ class PacManTolls(ConfigurationFileTools):
 
 
 def main():
+
+    """   """
+
     try:
         config_d = PacManTolls().get_configuration_dict()
         print(config_d)
