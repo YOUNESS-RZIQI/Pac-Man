@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Any
 import json
 import sys
 
@@ -50,7 +50,7 @@ class ConfigurationFileTools:
                                " File\033[0m")
 
 
-class PacManTolls(ConfigurationFileTools):
+class PacMan(ConfigurationFileTools):
 
     """   """
 
@@ -59,6 +59,7 @@ class PacManTolls(ConfigurationFileTools):
         """   """
 
         self.config_path: str = self.get_config_path()
+        self.game_config: Dict = self.get_game_config_dict()
 
     def get_config_path(self) -> str:
 
@@ -73,7 +74,7 @@ class PacManTolls(ConfigurationFileTools):
         else:
              return sys.argv[1]
 
-    def get_configuration_dict(self) -> Dict:
+    def get_game_config_dict(self) -> Dict:
 
         """   """
 
@@ -85,12 +86,26 @@ class PacManTolls(ConfigurationFileTools):
 
 
 
+
+
+    def get_valide_game_config(self) -> Dict[str, Dict]:
+
+
+        """   """
+
+        config = self.get_game_config_dict()
+
+        # highscore file: "file name"
+        # Level: data
+
+        pass
+
 def main():
 
     """   """
 
     try:
-        config_d = PacManTolls().get_configuration_dict()
+        config_d = PacMan().game_config
         print(config_d)
 
     except (PermissionError, FileNotFoundError, ValueError, json.JSONDecodeError) as e:
