@@ -3,13 +3,13 @@ install:
 
 	    pip install uv || true
 		uv init || true
-		uv add ? ? ? mypy flake8 || true
+		uv add mypy flake8 || true
 		uv sync
 
 run:
 
 		@clear
-		@uv run ? ? ? || true
+		@uv run python3 src/. src/configuration.json || true
 
 debug:
 # s: step into function
@@ -26,7 +26,7 @@ uninstall:
 	    uv remove ? ? ? mypy flake8
 
 clean:
-		@rm -rf __pycache__ .mypy_cache
+		@rm -rf src/__pycache__ .mypy_cache
 
 uninstall_all: uninstall clean
 
