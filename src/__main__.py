@@ -194,8 +194,8 @@ class PacMan(ConfigurationFileTools):
         """   """
 
         # what is this do ?
-        for key, val in keys_visited.items():
-            if not val:
+        for key, viseted in keys_visited.items():
+            if not viseted:
                 d_data[key] = self.data_default_asingment(key)
 
         expected_keys: Dict = ["width","height","lives","pacgum","points_per_pacgum",
