@@ -26,7 +26,7 @@ uninstall:
 	    uv remove ? ? ? mypy flake8
 
 clean:
-		@rm -rf src/__pycache__ .mypy_cache
+		@rm -rf src/__pycache__ .mypy_cache src/__main__.cpython*
 
 uninstall_all: uninstall clean
 

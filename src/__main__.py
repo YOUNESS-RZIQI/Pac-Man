@@ -59,7 +59,9 @@ class PacMan(ConfigurationFileTools):
         """   """
 
         self.config_path: str = self.get_config_path()
-        self.game_config: Dict = self.get_game_config_dict()
+        self.config: Dict = self.get_config_dict()
+        self.highscore_filename: str = self.get_highscore_filename_and_remove_it()
+        self.levels_configs: Dict = self.get_valide_game_config()
 
     def get_config_path(self) -> str:
 
@@ -74,18 +76,39 @@ class PacMan(ConfigurationFileTools):
         else:
              return sys.argv[1]
 
-    def get_game_config_dict(self) -> Dict:
+    def get_config_dict(self) -> Dict[str, Dict]:
 
         """   """
 
         s_config: str = self.separate_content_and_comments(self.config_path)["config"]
 
         config_d: Dict = json.loads(s_config)
-
         return config_d
 
+    def get_highscore_filename_and_remove_it(self) -> str:
 
+        """   """
 
+        self.fix_highscore_file()
+        name: str = self.config["highscore_filename"]
+        print(name, "\n\n")
+
+        # not i need to delete it from the config to lete just the game config
+
+        return name
+
+    def fix_highscore_file(self) -> None:
+
+        """   """
+
+        if "highscore_filename" not in self.config.keys():
+             self.config["highscore_filename"] = "highscores.json"
+
+        if not isinstance(self.config["highscore_filename"], str):
+             self.config["highscore_filename"] = "highscores.json"
+
+        if isinstance(self.config["highscore_filename"], str) and not self.config["highscore_filename"].endswith(".json"):
+             self.config["highscore_filename"] = "highscores.json"
 
 
     def get_valide_game_config(self) -> Dict[str, Dict]:
@@ -93,10 +116,6 @@ class PacMan(ConfigurationFileTools):
 
         """   """
 
-        config = self.get_game_config_dict()
-
-        # highscore file: "file name"
-        # Level: data
 
         pass
 
@@ -104,47 +123,14 @@ def main():
 
     """   """
 
-    try:
-        config_d = PacMan().game_config
-        print(config_d)
+    # try:
+    config_d = PacMan().get_valide_game_config()
 
-    except (PermissionError, FileNotFoundError, ValueError, json.JSONDecodeError) as e:
-        print(e)
+    # except (PermissionError, FileNotFoundError, ValueError, json.JSONDecodeError) as e:
+    #     print(e)
 
-    except Exception as e:
-        print(e)
+    # except Exception as e:
+    #     print(e)
 
 
 main()
-
-#  Now  Validate the Config File     !   !  !
-
-
-
-Game lifecycle:
-
-• Main Menu > start game > Win or Lose > Enter name for highscore > Back to Main Menu
-
-floow:
-
-1) Main Menu:
-    * Show Main Menu Scree
-    * it will need highscorefilename to show highscores
-    * push SPACE to play: it Will show the Play_Game_Screen
-
-2) Start game:
-    * we will need to load the congi of the Level1 -> level2 ...
-    * Show Play_Game_Screen
-    * after each change in the back-end i mean in the map we will print the new screen of the Play_Game_Screen
-
-3) Win or Lose:
-    * it will be a Win Screen and Lose Screen
-    * Bouth of the Win Screen and Lose will have to enter the Name for highscore
-
-4) Back to Main Menu:
-    * the loop will star over.
-
-
-
-UI rendering:
-# The Secret to Step 2: The Game Loop & Screen Rendering
