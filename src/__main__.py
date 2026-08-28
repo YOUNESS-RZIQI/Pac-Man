@@ -60,7 +60,7 @@ class PacMan(ConfigurationFileTools):
 
         self.config_path: str = self.get_config_path()
         self.config: Dict = self.get_config_dict()
-        self.highscore_filename: str = self.get_highscore_filename_and_remove_it()
+        self.highscore_filename: str = self.extract_highscore_filename()
         self.levels_configs: Dict = self.get_valide_game_config()
 
     def get_config_path(self) -> str:
@@ -85,15 +85,13 @@ class PacMan(ConfigurationFileTools):
         config_d: Dict = json.loads(s_config)
         return config_d
 
-    def get_highscore_filename_and_remove_it(self) -> str:
+    def extract_highscore_filename(self) -> str:
 
         """   """
 
         self.fix_highscore_file()
         name: str = self.config["highscore_filename"]
-        print(name, "\n\n")
-
-        # not i need to delete it from the config to lete just the game config
+        del self.config["highscore_filename"]
 
         return name
 
@@ -111,21 +109,148 @@ class PacMan(ConfigurationFileTools):
              self.config["highscore_filename"] = "highscores.json"
 
 
+# need to check if there is any thign wrong 
+
+
+
+    def data_default_asingment(slef, data_type: str) -> int:
+
+        """   """
+
+        if data_type == "width":
+             return 15
+        elif data_type == "height":
+             return 15
+        elif data_type == "lives":
+             return 3
+        elif data_type == "pacgum":
+             return 42
+        elif data_type == "points_per_pacgum":
+            return 10
+        elif data_type == "points_per_super_pacgum":
+             return 50
+        elif data_type == "points_per_ghost":
+             return 200
+        elif data_type == "seed":
+             return 0
+        elif data_type == "level_max_time":
+             return 90
+        else:
+             return 0
+
+    def is_data_val_respeketed(self, data_type: str, val: Any) -> bool:
+
+        """   """
+
+        if data_type == "width":
+            if not isinstance(val, int) or 100 < val or val < 15:
+                return  False
+
+        elif data_type == "height":
+            if not isinstance(val, int) or 100 < val or val < 15:
+                return  False
+
+        elif data_type == "lives":
+            if not isinstance(val, int) or 20 < val or val <= 0:
+                return  False
+
+        elif data_type == "pacgum":
+            if not isinstance(val, int) or 300 < val or val <= 0:
+                return  False
+
+        elif data_type == "points_per_pacgum":
+            if not isinstance(val, int) or 100 < val or val <= 0:
+                return  False
+
+        elif data_type == "points_per_super_pacgum":
+            if not isinstance(val, int) or 100 < val or val <= 0:
+                return  False
+
+        elif data_type == "points_per_ghost":
+            if not isinstance(val, int) or 10000 < val or val <= 200:
+                return  False
+
+        elif data_type == "seed":
+            if not isinstance(val, int):
+                return  False
+
+        elif data_type == "level_max_time":
+            if not isinstance(val, int) or 10000 < val or val <= 5:
+                return  False
+
+        return True
+
     def get_valide_game_config(self) -> Dict[str, Dict]:
 
 
         """   """
 
+        d_dflt_data: Dict = {
+                    "width": 28,
+                    "height": 31,
+                    "lives": 3,
+                    "pacgum": 42,
+                    "points_per_pacgum": 10,
+                    "points_per_super_pacgum": 50,
+                    "points_per_ghost": 200,
+                    "seed": 0,
+                    "level_max_time": 80
+                    }
 
-        pass
+        new_config: Dict[str, Dict] = {}
+
+        i_level_num: int = 1
+
+        for s_level, d_data in self.config.items():
+
+            if not isinstance(s_level, str):
+                s_level = f"levle {i_level_num}"
+                print(f"\033[93mWarning: Ivalide Levle Name. Default Used \033[0m")
+
+            if not isinstance(d_data, dict):
+                new_config[s_level] = d_dflt_data
+                i_level_num += 1
+                print(f"\033[93mWarning: Invalide Game Data. Default Used \033[0m")
+                continue
+
+            # check existing keys
+            for key_name, i_val in d_data.items():
+                 if key_name in d_dflt_data:
+                        if key_name == "width":
+                            
+                        elif key_name == "height":
+                            
+                        elif key_name == "lives":
+                            
+                        elif key_name == "pacgum":
+                            
+                        elif key_name == "points_per_pacgum":
+                            
+                        elif key_name == "points_per_super_pacgum":
+                            
+                        elif key_name == "points_per_ghost":
+                            
+                        elif key_name == "seed":
+                            
+                        elif key_name == "level_max_time":
+                            
+
+                        
+                
+
+            #check if missing main key
+
+            i_level_num += 1
+
+        return new_config
 
 def main():
 
     """   """
 
     # try:
-    config_d = PacMan().get_valide_game_config()
-
+    pac_obj = PacMan()
+    
     # except (PermissionError, FileNotFoundError, ValueError, json.JSONDecodeError) as e:
     #     print(e)
 
