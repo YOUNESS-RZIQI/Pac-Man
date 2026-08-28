@@ -121,7 +121,7 @@ main()
 
 
 
-Game Loop:
+Game lifecycle:
 
 • Main Menu > start game > Win or Lose > Enter name for highscore > Back to Main Menu
 
@@ -143,3 +143,8 @@ floow:
 
 4) Back to Main Menu:
     * the loop will star over.
+
+
+
+UI rendering:
+# The Secret to Step 2: The Game Loop & Screen Rendering
