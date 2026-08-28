@@ -144,41 +144,72 @@ class PacMan(ConfigurationFileTools):
 
         if data_type == "width":
             if not isinstance(val, int) or 100 < val or val < 15:
+                print(f"\033[93mWarning: Ivalide 'width'. Default Used \033[0m")
                 return  False
 
         elif data_type == "height":
             if not isinstance(val, int) or 100 < val or val < 15:
+                print(f"\033[93mWarning: Ivalide 'height'. Default Used \033[0m")
                 return  False
 
         elif data_type == "lives":
             if not isinstance(val, int) or 20 < val or val <= 0:
+                print(f"\033[93mWarning: Ivalide 'lives'. Default Used \033[0m")
                 return  False
 
         elif data_type == "pacgum":
             if not isinstance(val, int) or 300 < val or val <= 0:
+                print(f"\033[93mWarning: Ivalide 'pacgum'. Default Used \033[0m")
                 return  False
 
         elif data_type == "points_per_pacgum":
             if not isinstance(val, int) or 100 < val or val <= 0:
+                print(f"\033[93mWarning: Ivalide 'points_per_pacgum'. Default Used \033[0m")
                 return  False
 
         elif data_type == "points_per_super_pacgum":
             if not isinstance(val, int) or 100 < val or val <= 0:
+                print(f"\033[93mWarning: Ivalide 'points_per_super_pacgum'. Default Used \033[0m")
                 return  False
 
         elif data_type == "points_per_ghost":
             if not isinstance(val, int) or 10000 < val or val <= 200:
+                print(f"\033[93mWarning: Ivalide 'points_per_ghost'. Default Used \033[0m")
                 return  False
 
         elif data_type == "seed":
             if not isinstance(val, int):
+                print(f"\033[93mWarning: Ivalide 'seed'. Default Used \033[0m")
                 return  False
 
         elif data_type == "level_max_time":
             if not isinstance(val, int) or 10000 < val or val <= 5:
+                print(f"\033[93mWarning: Ivalide 'level_max_time'. Default Used \033[0m")
                 return  False
 
         return True
+
+    def add_messing_data_and_remove_extra(self, keys_visited: Dict, d_data: Dict) -> None:
+
+        """   """
+
+        # what is this do ?
+        for key, val in keys_visited.items():
+            if not val:
+                d_data[key] = self.data_default_asingment(key)
+
+        expected_keys: Dict = ["width","height","lives","pacgum","points_per_pacgum",
+                               "points_per_super_pacgum","points_per_ghost","seed",
+                               "level_max_time"]
+        new_data: Dict = {}
+
+        for key, val in d_data.items():
+            if key in expected_keys:
+                new_data[key] = val
+            else:
+                print(f"\033[93mWarning: Ivalide 'width'. Default Used \033[0m")
+
+        d_data = new_data
 
     def get_valide_game_config(self) -> Dict[str, Dict]:
 
@@ -213,7 +244,10 @@ class PacMan(ConfigurationFileTools):
                 print(f"\033[93mWarning: Invalide Game Data. Default Used \033[0m")
                 continue
 
-            # fix existing keys
+            keys_visited: Dict = {"width": 0, "height": 0, "lives": 0, "pacgum": 0,
+                    "points_per_pacgum": 0, "points_per_super_pacgum": 0,
+                    "points_per_ghost": 0, "seed": 0, "level_max_time": 0,}
+
             for data_name, data_val in d_data.items():
 
                  if data_name in d_dflt_data:
@@ -221,57 +255,72 @@ class PacMan(ConfigurationFileTools):
                             respect: bool = self.is_data_val_respeketed("width", data_val)
                             if not respect:
                                 d_data[data_name] = self.data_default_asingment("width")
+                            keys_visited["width"] = 1
 
                         elif data_name == "height":
                             respect: bool = self.is_data_val_respeketed("height", data_val)
                             if not respect:
                                 d_data[data_name] = self.data_default_asingment("height")
+                            keys_visited["height"] = 1
 
                         elif data_name == "lives":
                             respect: bool = self.is_data_val_respeketed("lives", data_val)
                             if not respect:
                                 d_data[data_name] = self.data_default_asingment("lives")
+                            keys_visited["lives"] = 1
 
                         elif data_name == "pacgum":
                             respect: bool = self.is_data_val_respeketed("pacgum", data_val)
                             if not respect:
                                 d_data[data_name] = self.data_default_asingment("pacgum")
+                            keys_visited["pacgum"] = 1
 
                         elif data_name == "points_per_pacgum":
                             respect: bool = self.is_data_val_respeketed("points_per_pacgum", data_val)
                             if not respect:
                                 d_data[data_name] = self.data_default_asingment("points_per_pacgum")
+                            keys_visited["points_per_pacgum"] = 1
 
                         elif data_name == "points_per_super_pacgum":
                             respect: bool = self.is_data_val_respeketed("points_per_super_pacgum", data_val)
                             if not respect:
                                 d_data[data_name] = self.data_default_asingment("points_per_super_pacgum")
+                            keys_visited["points_per_super_pacgum"] = 1
 
                         elif data_name == "points_per_ghost":
                             respect: bool = self.is_data_val_respeketed("points_per_ghost", data_val)
                             if not respect:
                                 d_data[data_name] = self.data_default_asingment("points_per_ghost")
+                            keys_visited["points_per_ghost"] = 1
 
                         elif data_name == "seed":
                             respect: bool = self.is_data_val_respeketed("seed", data_val)
                             if not respect:
                                 d_data[data_name] = self.data_default_asingment("seed")
+                            keys_visited["seed"] = 1
 
                         elif data_name == "level_max_time":
                             respect: bool = self.is_data_val_respeketed("level_max_time", data_val)
                             if not respect:
                                 d_data[data_name] = self.data_default_asingment("level_max_time")
+                            keys_visited["level_max_time"] = 1
 
 
                         
             
 
             #check if missing main key
-
-            i_level_num += 1
+            self.add_messing_data_and_remove_extra(keys_visited, d_data)
             new_config[s_level] = d_data
+            i_level_num += 1
+
+
 
         return new_config
+
+
+
+
 
 def main():
 
@@ -279,7 +328,9 @@ def main():
 
     # try:
     pac_obj = PacMan()
-    print(pac_obj.levels_configs)
+    for level, data in pac_obj.levels_configs.items():
+        print(level, "\n\t", data)
+    # print(pac_obj.levels_configs)
     
     # except (PermissionError, FileNotFoundError, ValueError, json.JSONDecodeError) as e:
     #     print(e)
