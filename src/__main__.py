@@ -213,34 +213,63 @@ class PacMan(ConfigurationFileTools):
                 print(f"\033[93mWarning: Invalide Game Data. Default Used \033[0m")
                 continue
 
-            # check existing keys
-            for key_name, i_val in d_data.items():
-                 if key_name in d_dflt_data:
-                        if key_name == "width":
-                            
-                        elif key_name == "height":
-                            
-                        elif key_name == "lives":
-                            
-                        elif key_name == "pacgum":
-                            
-                        elif key_name == "points_per_pacgum":
-                            
-                        elif key_name == "points_per_super_pacgum":
-                            
-                        elif key_name == "points_per_ghost":
-                            
-                        elif key_name == "seed":
-                            
-                        elif key_name == "level_max_time":
-                            
+            # fix existing keys
+            for data_name, data_val in d_data.items():
+
+                 if data_name in d_dflt_data:
+                        if data_name == "width":
+                            respect: bool = self.is_data_val_respeketed("width", data_val)
+                            if not respect:
+                                d_data[data_name] = self.data_default_asingment("width")
+
+                        elif data_name == "height":
+                            respect: bool = self.is_data_val_respeketed("height", data_val)
+                            if not respect:
+                                d_data[data_name] = self.data_default_asingment("height")
+
+                        elif data_name == "lives":
+                            respect: bool = self.is_data_val_respeketed("lives", data_val)
+                            if not respect:
+                                d_data[data_name] = self.data_default_asingment("lives")
+
+                        elif data_name == "pacgum":
+                            respect: bool = self.is_data_val_respeketed("pacgum", data_val)
+                            if not respect:
+                                d_data[data_name] = self.data_default_asingment("pacgum")
+
+                        elif data_name == "points_per_pacgum":
+                            respect: bool = self.is_data_val_respeketed("points_per_pacgum", data_val)
+                            if not respect:
+                                d_data[data_name] = self.data_default_asingment("points_per_pacgum")
+
+                        elif data_name == "points_per_super_pacgum":
+                            respect: bool = self.is_data_val_respeketed("points_per_super_pacgum", data_val)
+                            if not respect:
+                                d_data[data_name] = self.data_default_asingment("points_per_super_pacgum")
+
+                        elif data_name == "points_per_ghost":
+                            respect: bool = self.is_data_val_respeketed("points_per_ghost", data_val)
+                            if not respect:
+                                d_data[data_name] = self.data_default_asingment("points_per_ghost")
+
+                        elif data_name == "seed":
+                            respect: bool = self.is_data_val_respeketed("seed", data_val)
+                            if not respect:
+                                d_data[data_name] = self.data_default_asingment("seed")
+
+                        elif data_name == "level_max_time":
+                            respect: bool = self.is_data_val_respeketed("level_max_time", data_val)
+                            if not respect:
+                                d_data[data_name] = self.data_default_asingment("level_max_time")
+
 
                         
-                
+            
 
             #check if missing main key
 
             i_level_num += 1
+            new_config[s_level] = d_data
 
         return new_config
 
@@ -250,6 +279,7 @@ def main():
 
     # try:
     pac_obj = PacMan()
+    print(pac_obj.levels_configs)
     
     # except (PermissionError, FileNotFoundError, ValueError, json.JSONDecodeError) as e:
     #     print(e)
