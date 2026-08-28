@@ -101,12 +101,15 @@ class PacMan(ConfigurationFileTools):
 
         if "highscore_filename" not in self.config.keys():
              self.config["highscore_filename"] = "highscores.json"
+             print(f"\033[93mWarning: 'highscore_filename' Was not Found. Default Used \033[0m")
 
         if not isinstance(self.config["highscore_filename"], str):
              self.config["highscore_filename"] = "highscores.json"
+             print(f"\033[93mWarning: Invalide 'highscore_filename'. Default Used \033[0m")
 
         if isinstance(self.config["highscore_filename"], str) and not self.config["highscore_filename"].endswith(".json"):
              self.config["highscore_filename"] = "highscores.json"
+             print(f"\033[93mWarning: 'highscore_filename' Must be json file. Default Used \033[0m")
 
 
 # need to check if there is any thign wrong 
@@ -173,7 +176,7 @@ class PacMan(ConfigurationFileTools):
                 return  False
 
         elif data_type == "points_per_ghost":
-            if not isinstance(val, int) or 10000 < val or val <= 200:
+            if not isinstance(val, int) or 10000 < val or val < 200:
                 print(f"\033[93mWarning: Ivalide 'points_per_ghost'. Default Used \033[0m")
                 return  False
 
@@ -197,6 +200,7 @@ class PacMan(ConfigurationFileTools):
         for key, viseted in keys_visited.items():
             if not viseted:
                 d_data[key] = self.data_default_asingment(key)
+                print(f"\033[93mWarning: '{key}' Was not Found. Default Used \033[0m")
 
         expected_keys: Dict = ["width","height","lives","pacgum","points_per_pacgum",
                                "points_per_super_pacgum","points_per_ghost","seed",
@@ -206,8 +210,6 @@ class PacMan(ConfigurationFileTools):
         for key, val in d_data.items():
             if key in expected_keys:
                 new_data[key] = val
-            else:
-                print(f"\033[93mWarning: Ivalide 'width'. Default Used \033[0m")
 
         d_data = new_data
 
