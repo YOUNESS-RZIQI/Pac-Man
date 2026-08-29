@@ -35,8 +35,8 @@ class ConfigurationFileTools:
                 return {"config": config, "comments": comments}
                     
         except PermissionError:
-            raise PermissionError("\033[91mYou Don't have Permission To Read"
-                                  " Configuration file: \033[94m"
+            raise PermissionError("\033[91mError:\n\tYou Don't have Permission "
+                                  "To Read Configuration file: \033[94m"
                                   f"{path}\033[0m")
 
         except FileNotFoundError:
@@ -60,7 +60,7 @@ class PacMan(ConfigurationFileTools):
 
         self.config_path: str = self.get_config_path()
         self.config: Dict = self.get_config_dict()
-        self.highscore_filename: str = self.extract_highscore_filename()
+        self.highscores_filename: str = "highscores.json"
         self.levels_configs: Dict = self.get_valide_game_config()
 
     def get_config_path(self) -> str:
@@ -81,36 +81,14 @@ class PacMan(ConfigurationFileTools):
         """   """
 
         s_config: str = self.separate_content_and_comments(self.config_path)["config"]
+        try:
+            config_d: Dict = json.loads(s_config)
+        except Exception as e:
+            print(f"\033[91mJSON Error in {self.config_path}:\n\t\033[93m{e}\033[0m\n")
+            exit(1)
 
-        config_d: Dict = json.loads(s_config)
+
         return config_d
-
-    def extract_highscore_filename(self) -> str:
-
-        """   """
-
-        self.fix_highscore_file()
-        name: str = self.config["highscore_filename"]
-        del self.config["highscore_filename"]
-
-        return name
-
-    def fix_highscore_file(self) -> None:
-
-        """   """
-
-        if "highscore_filename" not in self.config.keys():
-             self.config["highscore_filename"] = "highscores.json"
-             print(f"\033[93mWarning: 'highscore_filename' Was not Found. Default Used \033[0m")
-
-        if not isinstance(self.config["highscore_filename"], str):
-             self.config["highscore_filename"] = "highscores.json"
-             print(f"\033[93mWarning: Invalide 'highscore_filename'. Default Used \033[0m")
-
-        if isinstance(self.config["highscore_filename"], str) and not self.config["highscore_filename"].endswith(".json"):
-             self.config["highscore_filename"] = "highscores.json"
-             print(f"\033[93mWarning: 'highscore_filename' Must be json file. Default Used \033[0m")
-
 
 # need to check if there is any thign wrong 
 
@@ -196,7 +174,6 @@ class PacMan(ConfigurationFileTools):
 
         """   """
 
-        # what is this do ?
         for key, viseted in keys_visited.items():
             if not viseted:
                 d_data[key] = self.data_default_asingment(key)
@@ -232,17 +209,10 @@ class PacMan(ConfigurationFileTools):
 
         new_config: Dict[str, Dict] = {}
 
-        i_level_num: int = 1
-
         for s_level, d_data in self.config.items():
-
-            if not isinstance(s_level, str):
-                s_level = f"levle {i_level_num}"
-                print(f"\033[93mWarning: Ivalide Levle Name. Default Used \033[0m")
 
             if not isinstance(d_data, dict):
                 new_config[s_level] = d_dflt_data
-                i_level_num += 1
                 print(f"\033[93mWarning: Invalide Game Data. Default Used \033[0m")
                 continue
 
@@ -307,14 +277,8 @@ class PacMan(ConfigurationFileTools):
                                 d_data[data_name] = self.data_default_asingment("level_max_time")
                             keys_visited["level_max_time"] = 1
 
-
-                        
-            
-
-            #check if missing main key
             self.add_messing_data_and_remove_extra(keys_visited, d_data)
             new_config[s_level] = d_data
-            i_level_num += 1
 
 
 
@@ -328,17 +292,13 @@ def main():
 
     """   """
 
-    # try:
-    pac_obj = PacMan()
-    for level, data in pac_obj.levels_configs.items():
-        print(level, "\n\t", data)
+    try:
+        pac_obj = PacMan()
+        for level, data in pac_obj.levels_configs.items():
+            print(level, "\n\t", data)
     # print(pac_obj.levels_configs)
     
-    # except (PermissionError, FileNotFoundError, ValueError, json.JSONDecodeError) as e:
-    #     print(e)
-
-    # except Exception as e:
-    #     print(e)
-
+    except Exception as e:
+        print(e)
 
 main()
