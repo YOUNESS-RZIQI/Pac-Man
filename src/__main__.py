@@ -2,11 +2,11 @@ from typing import List, Dict, Any
 import json
 import sys
 
-class ConfigurationFileTools:
+class ConfigFileTools:
 
     """   """
 
-    def is_comment(self, line: str) -> bool:
+    def __is_comment(self, line: str) -> bool:
 
         """   """
 
@@ -28,7 +28,7 @@ class ConfigurationFileTools:
                     lines = file.readlines()
                     for line in lines:
                         line = line.strip()
-                        if self.is_comment(line):
+                        if self.__is_comment(line):
                                comments.append(line)
                         else:
                              config += line + "\n"
@@ -49,25 +49,11 @@ class ConfigurationFileTools:
                                "\nAn Error apears in configuration.json"
                                " File\033[0m")
 
-
-class PacMan(ConfigurationFileTools):
-
-    """   """
-
-    def __init__(self):
+    def get_config_path(self, min_args_num: int, pos: int) -> str:
 
         """   """
 
-        self.config_path: str = self.__get_config_path()
-        self.config: Dict = self.__get_config_dict()
-        self.highscores_filename: str = "highscores.json"
-        self.levels_configs: Dict = self.get_valide_game_config()
-
-    def __get_config_path(self) -> str:
-
-        """   """
-
-        if  len(sys.argv) != 2 or not sys.argv[1] or not sys.argv[1].endswith(".json"):
+        if  len(sys.argv) != min_args_num or not sys.argv[pos] or not sys.argv[pos].endswith(".json"):
              raise ValueError("\033[91mYou Must gave Correct two"
                               " argements:\n\n Input Example:\n\n\t"
                               "\033[92mpython3 \033[93mEntry_point.py"
@@ -76,7 +62,7 @@ class PacMan(ConfigurationFileTools):
         else:
              return sys.argv[1]
 
-    def __get_config_dict(self) -> Dict[str, Dict]:
+    def get_json_config_dict(self) -> Dict[str, Dict]:
 
         """   """
 
@@ -89,6 +75,20 @@ class PacMan(ConfigurationFileTools):
 
 
         return config_d
+
+
+class PacMan(ConfigFileTools):
+
+    """   """
+
+    def __init__(self):
+
+        """   """
+
+        self.config_path: str = self.get_config_path(2, 1)
+        self.config: Dict = self.get_json_config_dict()
+        self.highscores_filename: str = "highscores.json"
+        self.levels_configs: Dict = self.get_valide_game_config()
 
 # need to check if there is any thign wrong 
 
@@ -246,9 +246,15 @@ def main():
 
         for level, data in pac_obj.levels_configs.items():
             print(level, "\n\t", data)
-    # print(pac_obj.levels_configs)
     
     except Exception as e:
-        print(e)
+
+        _, _, tb = sys.exc_info()
+        while tb.tb_next:
+            tb = tb.tb_next
+
+        print(f"Line: {tb.tb_lineno}")
+        print(f"Error: {e}")
+
 
 main()
