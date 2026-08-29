@@ -90,6 +90,12 @@ class PacMan(ConfigFileTools):
         self.highscores_filename: str = "highscores.json"
         self.level_up_def: int = 0
         self.level: int = 1
+        self.default_data: Dict = {"lives": 3, "pacgum": 42,
+                            "points_per_pacgum": 10,
+                            "points_per_super_pacgum": 50,
+                            "points_per_ghost": 200,
+                            "seed": 42 if self.level == 1 else 0,
+                            "level_max_time": 80}
 
 # need to check if there is any thign wrong 
 
@@ -140,18 +146,12 @@ class PacMan(ConfigFileTools):
 
         """   """
 
-        default_data: Dict = {
-                    "lives": 3,
-                    "pacgum": 42  + self.level_up_def,
-                    "points_per_pacgum": 10 + self.level_up_def,
-                    "points_per_super_pacgum": 50 + self.level_up_def,
-                    "points_per_ghost": 200 + self.level_up_def,
-                    "seed": 42 if self.level == 1 else 0,
-                    "level_max_time": 80 + self.level_up_def
-                    }
+        for name, val in self.default_data.copy().items():
+            if name not in ["lives", "pacgum", "seed"]:
+                self.default_data[name] = val + self.level_up_def
         
         s_levle: str = "level " + str(self.level)
-        default_config: Dict [str, Dict] = {s_levle: default_data}
+        default_config: Dict [str, Dict] = {s_levle: self.default_data}
         config: Dict = self.config
 
         for lev, data in default_config.items():
@@ -162,8 +162,8 @@ class PacMan(ConfigFileTools):
 
         self.level += 1
         self.level_up_def += 10
-
-        return {s_levle: default_data}
+        self.default_data = default_config[s_levle]
+        return {s_levle: self.default_data}
 
 
 def main():
