@@ -88,46 +88,47 @@ class PacMan(ConfigFileTools):
         self.config_path: str = self.get_config_path(2, 1)
         self.config: Dict = self.get_json_config_dict()
         self.highscores_filename: str = "highscores.json"
-        self.levels_info: List = ["level 1", 10]
+        self.level_up_def: int = 0
+        self.level: int = 1
 
 # need to check if there is any thign wrong 
 
 
-    def __is_respeceted_data(self, data_type: str, val: Any) -> bool:
+    def __is_respeceted_data(self, data_name: str, val: Any) -> bool:
 
         """   """
 
-        if data_type == "lives":
-            if not isinstance(val, int) or 20 < val or val <= 0:
+        if data_name == "lives":
+            if not isinstance(val, int) or 3 < val or val <= 0:
                 print(f"\033[93mWarning: Ivalide 'lives'. Default Used \033[0m")
                 return  False
 
-        elif data_type == "pacgum":
+        elif data_name == "pacgum":
             if not isinstance(val, int) or 300 < val or val <= 0:
                 print(f"\033[93mWarning: Ivalide 'pacgum'. Default Used \033[0m")
                 return  False
 
-        elif data_type == "points_per_pacgum":
+        elif data_name == "points_per_pacgum":
             if not isinstance(val, int) or 100 < val or val <= 0:
                 print(f"\033[93mWarning: Ivalide 'points_per_pacgum'. Default Used \033[0m")
                 return  False
 
-        elif data_type == "points_per_super_pacgum":
+        elif data_name == "points_per_super_pacgum":
             if not isinstance(val, int) or 100 < val or val <= 0:
                 print(f"\033[93mWarning: Ivalide 'points_per_super_pacgum'. Default Used \033[0m")
                 return  False
 
-        elif data_type == "points_per_ghost":
+        elif data_name == "points_per_ghost":
             if not isinstance(val, int) or 10000 < val or val < 200:
                 print(f"\033[93mWarning: Ivalide 'points_per_ghost'. Default Used \033[0m")
                 return  False
 
-        elif data_type == "seed":
+        elif data_name == "seed":
             if not isinstance(val, int):
                 print(f"\033[93mWarning: Ivalide 'seed'. Default Used \033[0m")
                 return  False
 
-        elif data_type == "level_max_time":
+        elif data_name == "level_max_time":
             if not isinstance(val, int) or 10000 < val or val <= 5:
                 print(f"\033[93mWarning: Ivalide 'level_max_time'. Default Used \033[0m")
                 return  False
@@ -139,53 +140,30 @@ class PacMan(ConfigFileTools):
 
         """   """
 
-        defr: int = self.levels_info[1]
-        cur_level: str = self.levels_info[0]
         default_data: Dict = {
                     "lives": 3,
-                    "pacgum": 42  + defr,
-                    "points_per_pacgum": 10 + defr,
-                    "points_per_super_pacgum": 50 + defr,
-                    "points_per_ghost": 200 + defr,
-                    "seed": 42 if cur_level == "level 1" else 0,
-                    "level_max_time": 80 + defr
+                    "pacgum": 42  + self.level_up_def,
+                    "points_per_pacgum": 10 + self.level_up_def,
+                    "points_per_super_pacgum": 50 + self.level_up_def,
+                    "points_per_ghost": 200 + self.level_up_def,
+                    "seed": 42 if self.level == 1 else 0,
+                    "level_max_time": 80 + self.level_up_def
                     }
         
-        
+        s_levle: str = "level " + str(self.level)
+        default_config: Dict [str, Dict] = {s_levle: default_data}
+        config: Dict = self.config
 
+        for lev, data in default_config.items():
+            if isinstance(lev, str) and isinstance(data, Dict) and s_levle == lev:
+                for name, val in data.copy().items():
+                    if s_levle in config and self.__is_respeceted_data(name, config[s_levle][name]):
+                        data[name] = config[s_levle][name]
 
+        self.level += 1
+        self.level_up_def += 10
 
-
-
-        # new_config: Dict[str, Dict] = {}
-
-        # for s_level, d_data in self.config.items():
-
-        #     if not isinstance(d_data, dict):
-        #         new_config[s_level] = d_dflt_data
-        #         print(f"\033[93mWarning: Invalide Game Data. Default Used \033[0m")
-        #         continue
-
-        #     keys_visited: Dict = {"width": 0, "height": 0, "lives": 0, "pacgum": 0,
-        #             "points_per_pacgum": 0, "points_per_super_pacgum": 0,
-        #             "points_per_ghost": 0, "seed": 0, "level_max_time": 0,}
-
-        #     for data_name, data_val in list(d_data.items()):
-        #         if data_name in d_dflt_data:
-        #             respected: bool = self.__is_data_val_respeketed(data_name, data_val)
-        #             if not respected:
-        #                 d_data[data_name] = self.__data_default_asingment(data_name)
-        #             keys_visited[data_name] = 1
-
-        #     self.__add_messing_data_and_remove_extra(keys_visited, d_data)
-        #     new_config[s_level] = d_data
-
-
-
-        return new_config
-
-
-
+        return {s_levle: default_data}
 
 
 def main():
@@ -195,9 +173,15 @@ def main():
     try:
         pac_obj = PacMan()
 
-        for level, data in pac_obj.levels_configs.items():
+        for level, data in pac_obj.get_curr_level_data().items():
             print(level, "\n\t", data)
-    
+
+        for level, data in pac_obj.get_curr_level_data().items():
+            print(level, "\n\t", data)
+
+        for level, data in pac_obj.get_curr_level_data().items():
+            print(level, "\n\t", data)
+
     except Exception as e:
 
         _, _, tb = sys.exc_info()
