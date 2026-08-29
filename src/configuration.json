@@ -1,8 +1,6 @@
 {
     "level 1":
     {
-        "width": 28,
-        "height": 31,
         "lives": 3,
         "pacgum": 42,
         "points_per_pacgum": 10,

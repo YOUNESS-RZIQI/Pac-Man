@@ -16,3 +16,7 @@
 - 2. For Invalid `Game Data Keys Value` like ("width" ,"height","lives","pacgum","points_per_pacgum" ...).
 
 - 3. For Missing a Required `Game Data Key` like ("width" ,"height","lives","pacgum","points_per_pacgum" ...).
+
+# Errors Need to Handle !
+
+- 1. pacgum must not be to mush for the maze
