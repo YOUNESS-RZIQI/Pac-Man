@@ -94,10 +94,8 @@ class PacMan(ConfigFileTools):
                             "points_per_pacgum": 10,
                             "points_per_super_pacgum": 50,
                             "points_per_ghost": 200,
-                            "seed": 42 if self.level == 1 else 0,
+                            "seed": 42,
                             "level_max_time": 80}
-
-# need to check if there is any thign wrong 
 
 
     def __is_respeceted_data(self, data_name: str, val: Any) -> bool:
@@ -105,37 +103,37 @@ class PacMan(ConfigFileTools):
         """   """
 
         if data_name == "lives":
-            if not isinstance(val, int) or 3 < val or val <= 0:
+            if isinstance(val, bool) or  not isinstance(val, int) or 3 < val or val <= 0:
                 print(f"\033[93mWarning: Ivalide 'lives'. Default Used \033[0m")
                 return  False
 
         elif data_name == "pacgum":
-            if not isinstance(val, int) or 300 < val or val <= 0:
+            if isinstance(val, bool) or  not isinstance(val, int) or 300 < val or val <= 0:
                 print(f"\033[93mWarning: Ivalide 'pacgum'. Default Used \033[0m")
                 return  False
 
         elif data_name == "points_per_pacgum":
-            if not isinstance(val, int) or 100 < val or val <= 0:
+            if isinstance(val, bool) or  not isinstance(val, int) or 100 < val or val <= 0:
                 print(f"\033[93mWarning: Ivalide 'points_per_pacgum'. Default Used \033[0m")
                 return  False
 
         elif data_name == "points_per_super_pacgum":
-            if not isinstance(val, int) or 100 < val or val <= 0:
+            if isinstance(val, bool) or  not isinstance(val, int) or 100 < val or val <= 0:
                 print(f"\033[93mWarning: Ivalide 'points_per_super_pacgum'. Default Used \033[0m")
                 return  False
 
         elif data_name == "points_per_ghost":
-            if not isinstance(val, int) or 10000 < val or val < 200:
+            if isinstance(val, bool) or  not isinstance(val, int) or 10000 < val or val < 200:
                 print(f"\033[93mWarning: Ivalide 'points_per_ghost'. Default Used \033[0m")
                 return  False
 
         elif data_name == "seed":
-            if not isinstance(val, int):
+            if isinstance(val, bool) or  not isinstance(val, int):
                 print(f"\033[93mWarning: Ivalide 'seed'. Default Used \033[0m")
                 return  False
 
         elif data_name == "level_max_time":
-            if not isinstance(val, int) or 10000 < val or val <= 5:
+            if isinstance(val, bool) or  not isinstance(val, int) or 10000 < val or val <= 5:
                 print(f"\033[93mWarning: Ivalide 'level_max_time'. Default Used \033[0m")
                 return  False
 
@@ -157,39 +155,42 @@ class PacMan(ConfigFileTools):
         for lev, data in default_config.items():
             if isinstance(lev, str) and isinstance(data, Dict) and s_levle == lev:
                 for name, val in data.copy().items():
-                    if s_levle in config and self.__is_respeceted_data(name, config[s_levle][name]):
+                    if isinstance(config, Dict) and s_levle in config and isinstance(config[s_levle], Dict) and name in config[s_levle] and self.__is_respeceted_data(name, config[s_levle][name]):
                         data[name] = config[s_levle][name]
 
         self.level += 1
         self.level_up_def += 10
         self.default_data = default_config[s_levle]
-        return {s_levle: self.default_data}
+        final_config: Dict[str, Dict] = {s_levle: self.default_data.copy()}
+        self.default_data["seed"] = 0
+
+        return final_config
 
 
 def main():
 
     """   """
 
-    try:
-        pac_obj = PacMan()
+    # try:
+    pac_obj = PacMan()
 
-        for level, data in pac_obj.get_curr_level_data().items():
+    for level, data in pac_obj.get_curr_level_data().items():
             print(level, "\n\t", data)
 
-        for level, data in pac_obj.get_curr_level_data().items():
+    for level, data in pac_obj.get_curr_level_data().items():
             print(level, "\n\t", data)
 
-        for level, data in pac_obj.get_curr_level_data().items():
+    for level, data in pac_obj.get_curr_level_data().items():
             print(level, "\n\t", data)
 
-    except Exception as e:
+    # except Exception as e:
 
-        _, _, tb = sys.exc_info()
-        while tb.tb_next:
-            tb = tb.tb_next
+    #     _, _, tb = sys.exc_info()
+    #     while tb.tb_next:
+    #         tb = tb.tb_next
 
-        print(f"Line: {tb.tb_lineno}")
-        print(f"Error: {e}")
+    #     print(f"Line: {tb.tb_lineno}")
+    #     print(f"Error: {e}")
 
 
 main()
