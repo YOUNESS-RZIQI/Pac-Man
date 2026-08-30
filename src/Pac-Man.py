@@ -50,7 +50,7 @@ class ConfigFileTools:
                                "\nAn Error apears in configuration.json"
                                " File\033[0m")
 
-    def get_config_path(self, min_args_num: int, pos: int) -> str:
+    def get_configuration_file_path(self, min_args_num: int, pos: int) -> str:
 
         """   """
 
@@ -63,7 +63,7 @@ class ConfigFileTools:
         else:
              return sys.argv[1]
 
-    def get_json_config_dict(self, path: str) -> Dict[str, Dict]:
+    def get_json_as_dict(self, path: str) -> Dict[str, Dict]:
 
         """   """
 
@@ -86,8 +86,9 @@ class PacMan(ConfigFileTools):
 
         """   """
 
-        self.config_path: str = self.get_config_path(2, 1)
-        self.config: Dict = self.get_json_config_dict(self.config_path)
+        self.config_path: str = self.get_configuration_file_path(2, 1)
+        self.highscores_path: str = str(Path(__file__).parent.parent / "data" / "highscores.json")
+        self.config: Dict = self.get_json_as_dict(self.config_path)
         self.highscores_filename: str = "highscores.json"
         self.level_up_def: int = 0
         self.level: int = 1
@@ -140,7 +141,7 @@ class PacMan(ConfigFileTools):
 
         return True
 
-    def get_curr_level_data(self) -> Dict[str, Dict]:
+    def get_current_level_data(self) -> Dict[str, Dict]:
 
 
         """   """
@@ -170,9 +171,22 @@ class PacMan(ConfigFileTools):
     def get_highscores_data(self) -> Dict[str, Any]:
 
         """   """
+        return self.get_json_as_dict(self.highscores_path)
 
-        highscore_path: str = str(Path(__file__).parent.parent / "data" / "highscores.json")
-        return self.get_json_config_dict(highscore_path)
+    def add_score_to_highscores_file(self, name: str, val: int) -> None:
+
+        """   """
+
+        if not isinstance(val, bool) and isinstance(val, int) or isinstance(val, float):
+            val = int(val)
+            new_highscors: Dict[str, int] = self.get_highscores_data()
+            new_highscors[name] = val
+            with open(self.highscores_path, "w") as f:
+                json.dump(new_highscors, f, indent=4)
+
+        else:
+            print(f"\033[91mWarning: Ivalide 'Score'. 'Score' Was not Added to 'highscores file' \033[0m")
+
 
 def main():
 
@@ -181,10 +195,10 @@ def main():
     # try:
     pac_obj = PacMan()
 
-    for level, data in pac_obj.get_curr_level_data().items():
-            print(level, "\n\t", data)
+    # for level, data in pac_obj.get_curr_level_data().items():
+    #         print(level, "\n\t", data)
 
-    print((pac_obj.get_highscores_data()))
+    # pac_obj.add_score_to_highscores_file("amine", 10)
 
     # except Exception as e:
 
