@@ -20,3 +20,4 @@
 # Errors Need to Handle !
 
 - 1. pacgum must not be to mush for the maze
+- 2. if highscore name is already exist ??

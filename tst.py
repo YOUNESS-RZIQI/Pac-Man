@@ -18,18 +18,18 @@ gride = [
 
 #   All Screens:
 # 
-#       1) Main Screan:
+#       1) Game View Screen:
 #
 #                  * 
 #
 #
+#       2) Main Menu Screen:
 #
 #
 #
 #
 #
-#
-#
+#       3)  Game-over Screen: 
 #
 #
 #

@@ -179,13 +179,16 @@ class PacMan(ConfigFileTools):
 
         if not isinstance(val, bool) and isinstance(val, int) or isinstance(val, float):
             val = int(val)
-            new_highscors: Dict[str, int] = self.get_highscores_data()
-            new_highscors[name] = val
+            new_highscores: Dict[str, int] = self.get_highscores_data()
+            new_highscores[name] = val
+            sorted_highscores = dict(sorted(new_highscores.items(), key=lambda item: item[1], reverse=True))
+
             with open(self.highscores_path, "w") as f:
-                json.dump(new_highscors, f, indent=4)
+                json.dump(sorted_highscores, f, indent=4)
 
         else:
             print(f"\033[91mWarning: Ivalide 'Score'. 'Score' Was not Added to 'highscores file' \033[0m")
+
 
 
 def main():
@@ -198,7 +201,7 @@ def main():
     # for level, data in pac_obj.get_curr_level_data().items():
     #         print(level, "\n\t", data)
 
-    # pac_obj.add_score_to_highscores_file("amine", 10)
+    pac_obj.add_score_to_highscores_file("amsssine", 10)
 
     # except Exception as e:
 
