@@ -198,10 +198,10 @@ def main():
     # try:
     pac_obj = PacMan()
 
-    # for level, data in pac_obj.get_curr_level_data().items():
-    #         print(level, "\n\t", data)
+    for level, data in pac_obj.get_current_level_data().items():
+            print(level, "\n\t", data)
 
-    pac_obj.add_score_to_highscores_file("amsssine", 10)
+    # pac_obj.add_score_to_highscores_file("youness", 99999999991)
 
     # except Exception as e:
 
