@@ -37,6 +37,10 @@ The Play Game screen is refreshed and redrawn under two conditions:
 
 ---
 
+## 4- The Make file
+
+## 5- Highscore file Management
+
 ## 3. The Shape of the Grid Representing the Game Backend
 
 *(Content pending...)*

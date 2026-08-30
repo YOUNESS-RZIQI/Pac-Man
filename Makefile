@@ -9,7 +9,7 @@ install:
 run:
 
 		@clear
-		@uv run python3 src/. src/configuration.json || true
+		@uv run python3 src/Pac-Man.py data/configuration.json || true
 
 debug:
 # s: step into function

@@ -1,6 +1,7 @@
 from typing import List, Dict, Any
 import json
 import sys
+from pathlib import Path
 
 class ConfigFileTools:
 
@@ -62,15 +63,15 @@ class ConfigFileTools:
         else:
              return sys.argv[1]
 
-    def get_json_config_dict(self) -> Dict[str, Dict]:
+    def get_json_config_dict(self, path: str) -> Dict[str, Dict]:
 
         """   """
 
-        s_config: str = self.separate_content_and_comments(self.config_path)["config"]
+        s_config: str = self.separate_content_and_comments(path)["config"]
         try:
             config_d: Dict = json.loads(s_config)
         except Exception as e:
-            print(f"\033[91mJSON Error in {self.config_path}:\n\t\033[93m{e}\033[0m\n")
+            print(f"\033[91mJSON Error in {path}:\n\t\033[93m{e}\033[0m\n")
             sys.exit(1)
 
 
@@ -86,7 +87,7 @@ class PacMan(ConfigFileTools):
         """   """
 
         self.config_path: str = self.get_config_path(2, 1)
-        self.config: Dict = self.get_json_config_dict()
+        self.config: Dict = self.get_json_config_dict(self.config_path)
         self.highscores_filename: str = "highscores.json"
         self.level_up_def: int = 0
         self.level: int = 1
@@ -166,6 +167,12 @@ class PacMan(ConfigFileTools):
 
         return final_config
 
+    def get_highscores_data(self) -> Dict[str, Any]:
+
+        """   """
+
+        highscore_path: str = str(Path(__file__).parent.parent / "data" / "highscores.json")
+        return self.get_json_config_dict(highscore_path)
 
 def main():
 
@@ -177,11 +184,7 @@ def main():
     for level, data in pac_obj.get_curr_level_data().items():
             print(level, "\n\t", data)
 
-    for level, data in pac_obj.get_curr_level_data().items():
-            print(level, "\n\t", data)
-
-    for level, data in pac_obj.get_curr_level_data().items():
-            print(level, "\n\t", data)
+    print((pac_obj.get_highscores_data()))
 
     # except Exception as e:
 
