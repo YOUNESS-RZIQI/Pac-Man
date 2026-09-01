@@ -191,26 +191,25 @@ class PacMan(ConfigFileTools):
 
 
 
+from maze import Maze, Player, Ghost, Game
+
+
 def main():
+    maze = Maze(15, 15, 42)
+    player = Player(maze.get_center())
+    ghosts = [
+        Ghost(position)
+        for position in maze.get_ghost_positions()
+    ]
+    game = Game(maze, player, ghosts, time_limit=180)
 
-    """   """
+    game.update(direction=1)
 
-    # try:
-    pac_obj = PacMan()
-
-    for level, data in pac_obj.get_current_level_data().items():
-            print(level, "\n\t", data)
-
-    # pac_obj.add_score_to_highscores_file("youness", 99999999991)
-
-    # except Exception as e:
-
-    #     _, _, tb = sys.exc_info()
-    #     while tb.tb_next:
-    #         tb = tb.tb_next
-
-    #     print(f"Line: {tb.tb_lineno}")
-    #     print(f"Error: {e}")
+    print(game.maze.cells)
+    print(game.player.lives)
+    print(game.player.score)
 
 
-main()
+if __name__ == "__main__":
+    main()
+

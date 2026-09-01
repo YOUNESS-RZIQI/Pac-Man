@@ -21,3 +21,4 @@
 
 - 1. pacgum must not be to mush for the maze
 - 2. if highscore name is already exist ??
+- 3. All the `mlx` functions must be check for errors and handle them, Because all of them can return NULL or 0 for errors.
