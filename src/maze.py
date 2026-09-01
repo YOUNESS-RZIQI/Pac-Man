@@ -209,11 +209,20 @@ class Ghost:
         best_direction = possible[0]
 
         for direction in possible:
-            x = self.x
-            y = self.y
+            nx = self.x
+            ny = self.y
 
-            self.move_position(direction)
-            distance = abs(x - player.x) + abs(y - player.y)
+            # self.move_position(direction)
+            if direction == Direction.UP:
+                ny -= 1
+            elif direction == Direction.RIGHT:
+                nx += 1
+            elif direction == Direction.DOWN:
+                ny += 1
+            elif direction == Direction.LEFT:
+                nx -= 1
+
+            distance = abs(nx - player.x) + abs(ny - player.y)
 
             if self.edible and distance > best_distance:
                 best_distance = distance
