@@ -12,7 +12,7 @@ if not init_ptr:
 
 
 # mlx new Window
-win_ptr = mlx_obj.mlx_new_window(init_ptr, 800, 600, "Pac-Man")
+win_ptr = mlx_obj.mlx_new_window(init_ptr, 1000, 800, "Pac-Man")
 if not win_ptr:
     print("Error: mlx_new_window failed, returned NULL pointer.")
     sys.exit(1)
@@ -49,31 +49,24 @@ if not win_ptr:
 # **    loop_hook(void *param);
 
 
+def expose_hook(param):
+    mlx_obj.mlx_string_put(param, win_ptr, 10, 10, 0xFFFFFF, "Hello World!")
+
+def key_hook(keycode, param):
+    if keycode == 97:
+        mlx_obj.mlx_destroy_window(param, win_ptr)
+        mlx_obj.mlx_loop_exit(param)
+    if keycode == 99:
+        mlx_obj.mlx_clear_window(param, win_ptr)
+    print(f"Key pressed: {keycode}")
 
 
 
 
-# Enter the event loop — this keeps the window open until the user closes it
+mlx_obj.mlx_key_hook(win_ptr, key_hook, init_ptr)
+mlx_obj.mlx_expose_hook(win_ptr, expose_hook, init_ptr)
+
 mlx_obj.mlx_loop(init_ptr)
-
-
-
-
-
-
-# mlx clear Window
-clear_int = mlx_obj.mlx_clear_window(init_ptr, win_ptr)
-if clear_int != 0:
-    print("Error: mlx_clear_window failed, returned Non-zero value.")
-    sys.exit(1)
-# mlx destroy Window
-dest_int = mlx_obj.mlx_destroy_window(init_ptr, win_ptr)
-if dest_int != 0:
-    print("Error: mlx_destroy_window failed, returned Non-zero value.")
-    sys.exit(1)
-
-
-
 
 
 # Destoy the MLX object when done
