@@ -63,7 +63,7 @@ ghosts = [
         Ghost(position)
         for position in maze.get_ghost_positions()
     ]
-game = Game(maze, player, ghosts, time_limit=180)
+game = Game(maze, player, ghosts, time_limit=180, pacgum_score=10, super_pacgum_score=50, ghost_score=200)
 
 # game.update(direction=1)
 
@@ -73,14 +73,7 @@ print("\n\nPrinting the maze:", grid, "\n\n")
 # list_of_strings = print_maze(grid, None, show_path=True, rand_wals=False, is_slow=False)
 
 
-def expose_hook(param):
-    for i in range(100):
-        mlx_obj.mlx_clear_window(param, win_ptr)
-        for i, l in enumerate(print_maze(grid, None, show_path=True, rand_wals=False, is_slow=False)):
 
-            mlx_obj.mlx_string_put(param, win_ptr, 210, 10 + i * 20, 0xFFFFFF, l)
-        game.update(direction=1)
-        time.sleep(0.5)
 
     # # 60 frame par second
     # time.sleep(1 / 60)
@@ -90,15 +83,21 @@ def key_hook(keycode, param):
     if keycode == 97:
         mlx_obj.mlx_destroy_window(param, win_ptr)
         mlx_obj.mlx_loop_exit(param)
-    if keycode == 99:
+
+
+    if keycode == 99:  # Left arrow key
         mlx_obj.mlx_clear_window(param, win_ptr)
+        for i, l in enumerate(print_maze(grid, None, show_path=True, rand_wals=False, is_slow=False)):
+        
+            mlx_obj.mlx_string_put(param, win_ptr, 210, 10 + i * 20, 0xFFFFFF, l)
+            game.update(direction=1)
+
     print(f"Key pressed: {keycode}")
 
 
 
 
 mlx_obj.mlx_key_hook(win_ptr, key_hook, init_ptr)
-mlx_obj.mlx_expose_hook(win_ptr, expose_hook, init_ptr)
 
 # mlx_obj.mlx_loop_hook(init_ptr, expose_hook, init_ptr)
 
