@@ -86,7 +86,6 @@ def print_maze(
         BG_ORANGE, BG_PINK, BG_PURPLE, BG_LIME,
         BG_GOLD, BG_GRAY
     ])
-    there_is_42: int = 0
 
     Back_ground: str = BG_TURQUOISE
 
@@ -159,7 +158,5 @@ def print_maze(
                     else "youness") + "+")
     Result.append(bottom)
 
-    if there_is_42 == 0:
-        print("\n\033[1;33m42 Does Not Fit in The Maze.\033[0m")
 
     return Result
