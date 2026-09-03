@@ -118,11 +118,10 @@ import sys
 #  5 → XCB_BUTTON_RELEASE, mask 8  (XCB_EVENT_MASK_BUTTON_RELEASE)
 # 33 → XCB_CLIENT_MESSAGE, mask 0  (title-bar X button / close)
 
+import sys
+
 mlx_obj = Mlx()
-
 init_ptr = mlx_obj.mlx_init()
-
-
 win_ptr = mlx_obj.mlx_new_window(init_ptr, 1000, 640, "Pac-Man")
 
 def key_hook(key_num, param):
@@ -130,10 +129,17 @@ def key_hook(key_num, param):
         mlx_obj.mlx_destroy_window(param, win_ptr)
         mlx_obj.mlx_loop_exit(init_ptr)
 
+# 1. Load the image
+img_path = "/home/yrziqi/Pac-Man/src/Images/image.xpm"
+png_ptr, w, h = mlx_obj.mlx_xpm_file_to_image(init_ptr, img_path)
+
+
+
+print(f"Image loaded: {w}x{h}")
+
+# 3. Draw the image (x=50, y=50) instead of (w, h)
+mlx_obj.mlx_put_image_to_window(init_ptr, win_ptr, png_ptr, 100, 100)
 
 mlx_obj.mlx_key_hook(win_ptr, key_hook, init_ptr)
-
 mlx_obj.mlx_loop(init_ptr)
-
-
 mlx_obj.mlx_release(init_ptr)

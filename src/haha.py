@@ -129,7 +129,7 @@ def render_hook(param=None) -> None:
     game.update(direction=current)
     draw_maze()
     mlx_obj.mlx_put_image_to_window(init_ptr, win_ptr, img_ptr, 0, 0)
-    time.sleep(1/60)
+    time.sleep(0.15)
 
 
 def key_hook(keycode: int, param=None) -> None:
