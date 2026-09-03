@@ -32,10 +32,10 @@ def put_pixel(x, y):
 
     offset = (y * line_size) + (x * 4)
 
-    img[offset + 0] = 0   #Blue
-    img[offset + 1] = 0 #Green
+    img[offset + 0] = 0     #Blue
+    img[offset + 1] = 0     #Green
     img[offset + 2] = 255   #Red
-    img[offset + 3] = 255  # Alpha channel on your system
+    img[offset + 3] = 255   # Alpha channel on your system
 
 
 
