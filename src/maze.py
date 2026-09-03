@@ -68,10 +68,10 @@ class Maze:
                     self.cells[y][x].pacgum = True
 
         positions = [
-            (1, 1),
-            (self.width - 2, 1),
-            (1, self.height - 2),
-            (self.width - 2, self.height - 2),
+            (0, 0),
+            (self.width - 1, 0),
+            (0, self.height - 1),
+            (self.width - 1, self.height - 1),
         ]
         for x, y in positions:
             if 0 <= y < self.height and 0 <= x < self.width:
@@ -123,10 +123,10 @@ class Maze:
 
     def get_ghost_positions(self) -> list[tuple[int, int]]:
         return [
-            (2, 1),
-            (self.width - 3, 1),
-            (2, self.height - 2),
-            (self.width - 3, self.height - 2),
+            (0, 1),
+            (self.width - 1, 1),
+            (0, self.height - 2),
+            (self.width - 1, self.height - 2),
         ]
 
 
@@ -165,6 +165,8 @@ class Ghost:
         self.edible = False
         self.edible_until = 0.0
 
+
+
     def move(self, maze: Maze, player: Player, ghosts: list['Ghost']) -> None:
         directions = [
             Direction.UP,
@@ -173,43 +175,47 @@ class Ghost:
             Direction.LEFT
         ]
 
-        possible = []
-
-        for direction in directions:
-            if maze.can_move(self.x, self.y, direction):
-                possible.append(direction)
+        possible = [
+            direction
+            for direction in directions
+            if maze.can_move(self.x, self.y, direction)
+        ]
 
         if not possible:
             return
 
-        best_direction = possible[0]
-        best_distance = -1 if self.edible else float("inf")
+        dx = player.x - self.x
+        dy = player.y - self.y
 
-        for direction in possible:
-            nx = self.x
-            ny = self.y
+        if self.edible:
+            toward_player = []
+            if dx > 0:
+                toward_player.append(Direction.RIGHT)
+            elif dx < 0:
+                toward_player.append(Direction.LEFT)
+            
+            if dy > 0:
+                toward_player.append(Direction.DOWN)
+            elif dy < 0:
+                toward_player.append(Direction.UP)
 
-            if direction == Direction.UP:
-                ny -= 1
-            elif direction == Direction.RIGHT:
-                nx += 1
-            elif direction == Direction.DOWN:
-                ny += 1
-            elif direction == Direction.LEFT:
-                nx -= 1
-
-            distance = abs(nx - player.x) + abs(ny - player.y)
-
-            if self.edible:
-                if distance > best_distance:
-                    best_distance = distance
-                    best_direction = direction
+            safe = [d for d in possible if d not in toward_player]
+            if safe:
+                self.direction = random.choice(safe)
             else:
-                if distance < best_distance:
-                    best_distance = distance
-                    best_direction = direction
+                self.direction = random.choice(possible)
 
-        self.direction = best_direction
+        else:
+            chase_dir = None
+            if dx == 0 and 0 < abs(dy) <= 10:
+                chase_dir = Direction.DOWN if dy > 0 else Direction.UP
+            elif dy == 0 and 0 < abs(dx) <= 10:
+                chase_dir = Direction.RIGHT if dx > 0 else Direction.LEFT
+            
+            if chase_dir and chase_dir in possible:
+                self.direction = chase_dir
+            else:
+                self.direction = random.choice(possible)
 
         old_x = self.x
         old_y = self.y
@@ -231,94 +237,24 @@ class Ghost:
         ):
             maze.cells[old_y][old_x].ghost = False
 
-#     def move(self, maze: Maze, player: Player, ghosts: list['Ghost']) -> None:
-#         directions = [
-#             Direction.UP,
-#             Direction.RIGHT,
-#             Direction.DOWN,
-#             Direction.LEFT
-#         ]
 
-#         possible = []
 
-#         for direction in directions:
-#             if maze.can_move(self.x, self.y, direction):
-#                 possible.append(direction)
 
-#         if not possible:
-#             return
-# # /////////////////////////////////////////////
-#         # if self.edible:
-#         #     best_direction = possible[0]
-#         #     best_distance = -1
 
-#         #     for direction in possible:
-#         #         x = self.x
-#         #         y = self.y
-#         #         self.move_position(direction)
 
-#         #         distance = abs(x - player.x) + abs(y - player.y)
 
-#         #         if distance > best_distance:
-#         #             best_distance = distance
-#         #             best_direction = direction
 
-#         #     self.direction = best_direction
-#         # else:
-#         #     self.direction = random.choice(possible)
 
-#         if self.edible:
-#             best_distance = -1
-#         else:
-#             best_distance = float("inf")
 
-#         best_direction = possible[0]
 
-#         for direction in possible:
-#             nx = self.x
-#             ny = self.y
 
-#             # self.move_position(direction)
-#             if direction == Direction.UP:
-#                 ny -= 1
-#             elif direction == Direction.RIGHT:
-#                 nx += 1
-#             elif direction == Direction.DOWN:
-#                 ny += 1
-#             elif direction == Direction.LEFT:
-#                 nx -= 1
 
-#             distance = abs(nx - player.x) + abs(ny - player.y)
 
-#             if self.edible and distance > best_distance:
-#                 best_distance = distance
-#                 best_direction = direction
 
-#             elif not self.edible and distance < best_distance:
-#                 best_distance = distance
-#                 best_direction = direction
 
-#         self.direction = best_direction
 
-# # //////////////////////////////////////////////
-#         old_x, old_y = self.x, self.y
-#         self.move_position(self.direction)
 
-#         maze.cells[self.y][self.x].ghost = True
-#         if not any(g for g in ghosts if g is not self and g.x == old_x and g.y == old_y):
-#             maze.cells[old_y][old_x].ghost = False
-
-    # def move_position(self, direction: Direction) -> None:
-    #     if direction == Direction.UP:
-    #         self.y -= 1
-    #     elif direction == Direction.RIGHT:
-    #         self.x += 1
-    #     elif direction == Direction.DOWN:
-    #         self.y += 1
-    #     elif direction == Direction.LEFT:
-    #         self.x -= 1
-
-    def set_edible(self, duration: float = 100000000.0) -> None:
+    def set_edible(self, duration: float = 1999999999999999999999995.0) -> None:
         self.edible = True
         self.edible_until = time.time() + duration
 
@@ -365,20 +301,19 @@ class Game:
             return
 
         for ghost in self.ghosts:
-            if self.player.x == ghost.x and self.player.y == ghost.y:
-                if ghost.edible:
-                    self.eat_ghost(ghost)
-                else:
-                    self.eat_player()
+            self.check_ghost_position(ghost)
 
             ghost.update()
             ghost.move(self.maze, self.player, self.ghosts)
 
-            if self.player.x == ghost.x and self.player.y == ghost.y:
-                if ghost.edible:
-                    self.eat_ghost(ghost)
-                else:
-                    self.eat_player()
+            self.check_ghost_position(ghost)
+
+    def check_ghost_position(self, ghost: Ghost) -> None:
+        if self.player.x == ghost.x and self.player.y == ghost.y:
+            if ghost.edible:
+                self.eat_ghost(ghost)
+            else:
+                self.eat_player()
 
     def eat_ghost(self, ghost: Ghost) -> None:
         self.player.score += self.ghost_score

@@ -98,7 +98,7 @@ def key_hook(keycode, param):
 
 
 
-
+mlx_obj.mlx_pixel_put()
 mlx_obj.mlx_key_hook(win_ptr, key_hook, init_ptr)
 # mlx_obj.mlx_expose_hook(win_ptr, expose_hook, init_ptr)
 
