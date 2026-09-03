@@ -45,6 +45,15 @@ def draw_horizontal_line(x_start, x_end, y):
         return
     for i in range(x_start, x_end + 1):
         put_pixel(i, y)
+    # for i in range(x_start, x_end + 1):
+    #         put_pixel(i, y + 1)
+
+    # for i in range(x_start, x_end + 1):
+    #             put_pixel(i, y + 2)
+
+    # for i in range(x_start, x_end + 1):
+    #             put_pixel(i, y + 3)
+
 
 def draw_vertical_line(x, y_start, y_end):
     if y_start > y_end:
@@ -52,6 +61,15 @@ def draw_vertical_line(x, y_start, y_end):
         return
     for i in range(y_start, y_end + 1):
         put_pixel(x, i)
+
+    # for i in range(y_start, y_end + 1):
+    #         put_pixel(x + 1, i)
+
+    # for i in range(y_start, y_end + 1):
+    #             put_pixel(x + 2, i)
+
+    # for i in range(y_start, y_end + 1):
+    #             put_pixel(x + 3, i)
 
 
 
