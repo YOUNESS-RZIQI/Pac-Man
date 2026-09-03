@@ -22,24 +22,20 @@ def key_hook(keycode: int, param=None) -> None:
     if keycode == 97:  # 'a' -> quit
         mlx_obj.mlx_loop_exit(init_ptr)
         mlx_obj.mlx_destroy_window(init_ptr, win_ptr)
-    # if keycode == 102:
-    #     draw_horizontal_line(50, 80, 50, COLOR_BLUE)
-    #     mlx_obj.mlx_put_image_to_window(init_ptr, win_ptr, img_ptr, 0,0)
 
     print("key= ", keycode)
 
     
 def put_pixel(x, y):
-
     if x < 0 or x >= 1000 or y < 0 or y >= 640:
         return
 
     offset = (y * line_size) + (x * 4)
 
-    img[offset + 0] = 0x00          # Alpha
-    img[offset + 1] = 0x00          # Green
-    img[offset + 2] = 0xFF          # Blue
-    img[offset + 3] = 0xFF          # Blue
+    img[offset + 0] = 0   #Blue
+    img[offset + 1] = 0 #Green
+    img[offset + 2] = 255   #Red
+    img[offset + 3] = 255  # Alpha channel on your system
 
 
 
@@ -59,8 +55,9 @@ def draw_vertical_line(x, y_start, y_end):
 
 
 
-draw_horizontal_line(0, 1000, 320)
-draw_vertical_line(0, 0, 1000)
+draw_horizontal_line(0, 999, 320)
+draw_vertical_line(0, 0, 600)
+
 mlx_obj.mlx_put_image_to_window(init_ptr, win_ptr, img_ptr, 0,0)
 
 mlx_obj.mlx_key_hook(win_ptr, key_hook, init_ptr)
