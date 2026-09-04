@@ -25,7 +25,7 @@ COLOR_GHOST = 0xFF2266
 
 # --- Build maze (same logic as practice.py) -------------------------------
 maze = Maze(MAZE_ROWS, MAZE_COLMS, 42)
-player = Player(maze.get_center(), 300)
+player = Player(maze.get_center_maze(), 300)
 ghosts = [Ghost(position) for position in maze.get_ghost_positions()]
 game = Game(maze, player, ghosts, time_limit=18099999,
             pacgum_score=10, super_pacgum_score=50, ghost_score=200)

@@ -7,23 +7,23 @@ import time
 
 class Direction(Enum):
     UP = 1
-    RIGHT = 2
     DOWN = 3
     LEFT = 4
+    RIGHT = 2
 
 
 @dataclass
 class Cell:
-    north: bool = True
     east: bool = True
-    south: bool = True
     west: bool = True
+    south: bool = True
+    north: bool = True
 
+    is_42: bool = False
+    ghost: bool = False
+    player: bool = False
     pacgum: bool = False
     super_pacgum: bool = False
-    player: bool = False
-    ghost: bool = False
-    is_42: bool = False
 
 
 class Maze:
@@ -57,38 +57,27 @@ class Maze:
 
                 row.append(cell)
 
-                # if (cell.north and cell.east and cell.south and cell.west):
-                #     cell.is_42 = True
+                if (cell.north and cell.east and cell.south and cell.west):
+                    cell.is_42 = True
 
             self.cells.append(row)
 
         for y in range(self.height):
             for x in range(self.width):
-                if self.is_walkable(x, y):
+                if self.is_walkable(x, y) and not self.cells[y][x].is_42:
                     self.cells[y][x].pacgum = True
 
-        positions = [
+        super_pacgum_positions = [
             (0, 0),
             (self.width - 1, 0),
             (0, self.height - 1),
             (self.width - 1, self.height - 1),
         ]
-        for x, y in positions:
-            if 0 <= y < self.height and 0 <= x < self.width:
-                self.cells[y][x].super_pacgum = True
-                self.cells[y][x].pacgum = False
-
-        for y in range(self.height):
-            for x in range(self.width):
-                cell = self.cells[y][x]
-                if (cell.north and cell.east and cell.south and cell.west):
-                    cell.is_42 = True
-                    cell.pacgum = False
+        for x, y in super_pacgum_positions:
+            self.cells[y][x].super_pacgum = True
+            self.cells[y][x].pacgum = False
 
     def is_walkable(self, x: int, y: int) -> bool:
-        if not (0 <= x < self.width and 0 <= y < self.height):
-            return False
-
         cell = self.cells[y][x]
 
         return not (
@@ -118,8 +107,13 @@ class Maze:
 
         return False
 
-    def get_center(self) -> tuple[int, int]:
-        return self.width // 2, self.height // 2
+    def get_center_maze(self) -> tuple[int, int]:
+        x, y = self.width // 2, self.height // 2
+        centre = self.cells[y][x]
+
+        if centre.east and centre.north and centre.south and centre.west:
+            return (self.width - 1) // 2, self.height // 2
+        return x, y
 
     def get_ghost_positions(self) -> list[tuple[int, int]]:
         return [
@@ -134,23 +128,31 @@ class Player:
     def __init__(self, position: tuple[int, int], lives: int) -> None:
         self.x = position[0]
         self.y = position[1]
-        self.lives = lives
+
         self.score = 0
+        self.lives = lives
+        self.fast_mode = False
+        self.is_invincibility = False
 
     def move(self, maze: Maze, direction: Direction) -> None:
-        if maze.can_move(self.x, self.y, direction):
-            old_cell = maze.cells[self.y][self.x]
-            if direction == Direction.UP:
-                self.y -= 1
-            elif direction == Direction.RIGHT:
-                self.x += 1
-            elif direction == Direction.DOWN:
-                self.y += 1
-            elif direction == Direction.LEFT:
-                self.x -= 1
-            new_cell = maze.cells[self.y][self.x]
-            old_cell.player = False
-            new_cell.player = True
+        def move_player():
+            if maze.can_move(self.x, self.y, direction):
+                old_cell = maze.cells[self.y][self.x]
+                if direction == Direction.UP:
+                    self.y -= 1
+                elif direction == Direction.RIGHT:
+                    self.x += 1
+                elif direction == Direction.DOWN:
+                    self.y += 1
+                elif direction == Direction.LEFT:
+                    self.x -= 1
+                new_cell = maze.cells[self.y][self.x]
+                old_cell.player = False
+                new_cell.player = True
+        move_player()
+        #  if change diection move to direction
+        if self.fast_mode:
+            move_player()
 
     def is_dead(self) -> bool:
         return self.lives <= 0
@@ -160,14 +162,15 @@ class Ghost:
     def __init__(self, position: tuple[int, int]) -> None:
         self.x = position[0]
         self.y = position[1]
-        self.spawn = position
-        self.direction = Direction.UP
         self.edible = False
+        self.spawn = position
+        self.respawn_at = 0.0
         self.edible_until = 0.0
+        self.direction = Direction.UP
 
 
-
-    def move(self, maze: Maze, player: Player, ghosts: list['Ghost']) -> None:
+    def move(self, maze: Maze, player: Player,
+            ghosts: list['Ghost']) -> None:
         directions = [
             Direction.UP,
             Direction.RIGHT,
@@ -176,8 +179,7 @@ class Ghost:
         ]
 
         possible = [
-            direction
-            for direction in directions
+            direction for direction in directions
             if maze.can_move(self.x, self.y, direction)
         ]
 
@@ -187,35 +189,66 @@ class Ghost:
         dx = player.x - self.x
         dy = player.y - self.y
 
+        chase = None
+
+        if not self.edible:
+            if dx == 0 and 0 < abs(dy) <= 5:
+                chase = Direction.DOWN if dy > 0 else Direction.UP
+            elif dy == 0 and 0 < abs(dx) <= 5:
+                chase = Direction.RIGHT if dx > 0 else Direction.LEFT
+
+
         if self.edible:
-            toward_player = []
-            if dx > 0:
-                toward_player.append(Direction.RIGHT)
-            elif dx < 0:
-                toward_player.append(Direction.LEFT)
-            
-            if dy > 0:
-                toward_player.append(Direction.DOWN)
-            elif dy < 0:
-                toward_player.append(Direction.UP)
+            if abs(dx) <= 5 and abs(dy) <= 5:
+                away = []
 
-            safe = [d for d in possible if d not in toward_player]
-            if safe:
-                self.direction = random.choice(safe)
-            else:
+                if dx > 0:
+                    away.append(Direction.LEFT)
+                elif dx < 0:
+                    away.append(Direction.RIGHT)
+
+                if dy > 0:
+                    away.append(Direction.UP)
+                elif dy < 0:
+                    away.append(Direction.DOWN)
+
+                choices = [d for d in possible if d in away]
+
+                if choices:
+                    self.direction = random.choice(choices)
+                elif self.direction not in possible:
+                    self.direction = random.choice(possible)
+
+            elif self.direction not in possible:
                 self.direction = random.choice(possible)
 
-        else:
-            chase_dir = None
-            if dx == 0 and 0 < abs(dy) <= 10:
-                chase_dir = Direction.DOWN if dy > 0 else Direction.UP
-            elif dy == 0 and 0 < abs(dx) <= 10:
-                chase_dir = Direction.RIGHT if dx > 0 else Direction.LEFT
-            
-            if chase_dir and chase_dir in possible:
-                self.direction = chase_dir
-            else:
-                self.direction = random.choice(possible)
+        elif chase in possible:
+            self.direction = chase
+
+        elif self.direction not in possible:
+            self.direction = random.choice(possible)
+     
+        # if self.edible:
+        #     away = []
+
+        #     if dx > 0:
+        #         away.append(Direction.LEFT)
+        #     elif dx < 0:
+        #         away.append(Direction.RIGHT)
+
+        #     if dy > 0:
+        #         away.append(Direction.UP)
+        #     elif dy < 0:
+        #         away.append(Direction.DOWN)
+
+        #     choices = [d for d in possible if d in away]
+        #     self.direction = random.choice(choices or possible)
+
+        # elif chase in possible:
+        #     self.direction = chase
+
+        # elif self.direction not in possible:
+        #     self.direction = random.choice(possible)
 
         old_x = self.x
         old_y = self.y
@@ -238,23 +271,9 @@ class Ghost:
             maze.cells[old_y][old_x].ghost = False
 
 
+# ////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def set_edible(self, duration: float = 1999999999999999999999995.0) -> None:
+    def set_edible(self, duration: float = 1500000000000000000.0) -> None:
         self.edible = True
         self.edible_until = time.time() + duration
 
@@ -263,10 +282,12 @@ class Ghost:
         self.x, self.y = self.spawn
         self.edible = False
 
-        maze.cells[self.y][self.x].ghost = True
         #  check this line >> if ...
-        if not any(g for g in ghosts if g is not self and g.x == old_x and g.y == old_y):
-            maze.cells[old_y][old_x].ghost = False
+        # had l if ila kano joj d lghost f balsa o klahom plyer yaklhom bjoj
+        # if not any(g for g in ghosts if g is not self and g.x == old_x and g.y == old_y):
+        maze.cells[old_y][old_x].ghost = False
+        if not self.respawn_at:
+            maze.cells[self.y][self.x].ghost = True
 
     def update(self) -> None:
         if self.edible and time.time() >= self.edible_until:
@@ -281,6 +302,7 @@ class Game:
         self.ghosts = ghosts
         self.start_time = time.time()
 
+        self.ghost_freeze = False
         self.time_limit = time_limit
         self.ghost_score = ghost_score
         self.pacgum_score = pacgum_score
@@ -300,11 +322,28 @@ class Game:
         if self.is_game_over():
             return
 
+        # for ghost in self.ghosts:
+        #     self.check_ghost_position(ghost)
+
+        #     ghost.update()
+        #     if not self.ghost_freeze:
+        #         ghost.move(self.maze, self.player, self.ghosts)
+
+        #     self.check_ghost_position(ghost)
+
         for ghost in self.ghosts:
             self.check_ghost_position(ghost)
 
             ghost.update()
-            ghost.move(self.maze, self.player, self.ghosts)
+
+            if ghost.respawn_at:
+                if time.time() >= ghost.respawn_at:
+                    ghost.respawn_at = 0.0
+                    ghost.respawn(self.maze, self.ghosts)
+                continue
+
+            if not self.ghost_freeze:
+                ghost.move(self.maze, self.player, self.ghosts)
 
             self.check_ghost_position(ghost)
 
@@ -312,23 +351,34 @@ class Game:
         if self.player.x == ghost.x and self.player.y == ghost.y:
             if ghost.edible:
                 self.eat_ghost(ghost)
-            else:
+            elif not self.player.is_invincibility:
                 self.eat_player()
 
     def eat_ghost(self, ghost: Ghost) -> None:
         self.player.score += self.ghost_score
+        ghost.respawn_at = time.time() + 3
         ghost.respawn(self.maze, self.ghosts)
 
     def eat_player(self) -> None:
         self.player.lives -= 1
 
         old_x, old_y = self.player.x, self.player.y
-        self.player.x, self.player.y = self.maze.get_center()
+        self.player.x, self.player.y = self.maze.get_center_maze()
 
         self.maze.cells[old_y][old_x].player = False
         self.maze.cells[self.player.y][self.player.x].player = True
 
         self.reset_ghosts()
+
+    def cheat_mode(self, invincible=False, ghost_freeze=False, extra_lives=0, fast_mode=False):
+        if invincible:
+            self.player.is_invincibility = True
+        if ghost_freeze:
+            self.ghost_freeze = True
+        if extra_lives:
+            self.player.lives += extra_lives
+        if fast_mode:
+            self.player.fast_mode = True
 
     def check_pacgum_eating(self, cell: Cell) -> None:
         if cell.pacgum:
