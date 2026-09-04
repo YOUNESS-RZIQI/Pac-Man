@@ -201,10 +201,9 @@ current = Direction.UP
 
 def render_hook(param=None) -> None:
     """Render the current maze state every frame."""
-    game.update(direction=current)
+    game.update(direction=current, player_speed=100, ghost_speed=100)
     draw_maze((game.maze.cells))
     mlx_obj.mlx_put_image_to_window(init_ptr, win_ptr, img_ptr, 220, 20)
-    time.sleep(0.15)
 
 
 def key_hook(keycode: int, param=None) -> None:

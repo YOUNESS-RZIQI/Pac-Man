@@ -131,28 +131,22 @@ class Player:
 
         self.score = 0
         self.lives = lives
-        self.fast_mode = False
         self.is_invincibility = False
 
     def move(self, maze: Maze, direction: Direction) -> None:
-        def move_player():
-            if maze.can_move(self.x, self.y, direction):
-                old_cell = maze.cells[self.y][self.x]
-                if direction == Direction.UP:
-                    self.y -= 1
-                elif direction == Direction.RIGHT:
-                    self.x += 1
-                elif direction == Direction.DOWN:
-                    self.y += 1
-                elif direction == Direction.LEFT:
-                    self.x -= 1
-                new_cell = maze.cells[self.y][self.x]
-                old_cell.player = False
-                new_cell.player = True
-        move_player()
-        #  if change diection move to direction
-        if self.fast_mode:
-            move_player()
+        if maze.can_move(self.x, self.y, direction):
+            old_cell = maze.cells[self.y][self.x]
+            if direction == Direction.UP:
+                self.y -= 1
+            elif direction == Direction.RIGHT:
+                self.x += 1
+            elif direction == Direction.DOWN:
+                self.y += 1
+            elif direction == Direction.LEFT:
+                self.x -= 1
+            new_cell = maze.cells[self.y][self.x]
+            old_cell.player = False
+            new_cell.player = True
 
     def is_dead(self) -> bool:
         return self.lives <= 0
@@ -168,9 +162,7 @@ class Ghost:
         self.edible_until = 0.0
         self.direction = Direction.UP
 
-
-    def move(self, maze: Maze, player: Player,
-            ghosts: list['Ghost']) -> None:
+    def move(self, maze: Maze, player: Player, ghosts: list['Ghost']) -> None:
         directions = [
             Direction.UP,
             Direction.RIGHT,
@@ -184,6 +176,7 @@ class Ghost:
         ]
 
         if not possible:
+            print("NOT POSSIBLE")
             return
 
         dx = player.x - self.x
@@ -196,7 +189,6 @@ class Ghost:
                 chase = Direction.DOWN if dy > 0 else Direction.UP
             elif dy == 0 and 0 < abs(dx) <= 5:
                 chase = Direction.RIGHT if dx > 0 else Direction.LEFT
-
 
         if self.edible:
             if abs(dx) <= 5 and abs(dy) <= 5:
@@ -228,28 +220,6 @@ class Ghost:
         elif self.direction not in possible:
             self.direction = random.choice(possible)
      
-        # if self.edible:
-        #     away = []
-
-        #     if dx > 0:
-        #         away.append(Direction.LEFT)
-        #     elif dx < 0:
-        #         away.append(Direction.RIGHT)
-
-        #     if dy > 0:
-        #         away.append(Direction.UP)
-        #     elif dy < 0:
-        #         away.append(Direction.DOWN)
-
-        #     choices = [d for d in possible if d in away]
-        #     self.direction = random.choice(choices or possible)
-
-        # elif chase in possible:
-        #     self.direction = chase
-
-        # elif self.direction not in possible:
-        #     self.direction = random.choice(possible)
-
         old_x = self.x
         old_y = self.y
 
@@ -270,10 +240,7 @@ class Ghost:
         ):
             maze.cells[old_y][old_x].ghost = False
 
-
-# ////////////////////////////////////////////////////////////////////////
-
-    def set_edible(self, duration: float = 1500000000000000000.0) -> None:
+    def set_edible(self, duration: float = 15.0) -> None:
         self.edible = True
         self.edible_until = time.time() + duration
 
@@ -302,6 +269,9 @@ class Game:
         self.ghosts = ghosts
         self.start_time = time.time()
 
+        self.player_count = 0
+        self.ghost_count = 0
+        self.player_direction = Direction.UP
         self.ghost_freeze = False
         self.time_limit = time_limit
         self.ghost_score = ghost_score
@@ -309,45 +279,58 @@ class Game:
         self.super_pacgum_score = super_pacgum_score
 
         self.maze.cells[self.player.y][self.player.x].player = True
+        self.maze.cells[self.player.y][self.player.x].pacgum = False
         for ghost in self.ghosts:
             self.maze.cells[ghost.y][ghost.x].ghost = True
 
-    def update(self, direction: Direction) -> None:
-        self.player.move(self.maze, direction)
-        cell = self.maze.cells[self.player.y][self.player.x]
+    def update(self, direction: Direction, player_speed: int = 50, ghost_speed: int = 50) -> None:
 
-        self.check_pacgum_eating(cell)
-        self.check_super_pacgum_eating(cell)
+        if self.maze.can_move(self.player.x, self.player.y , direction):
+            self.player_direction = direction
+
+        self.player_count += player_speed
+
+        self.ghost_count += ghost_speed // 2 if any(
+            ghost.edible for ghost in self.ghosts
+        ) else ghost_speed
+
+        if self.player_count >= 100:
+            self.player.move(self.maze, self.player_direction)
+            self.player_count -= 100
+
+            cell = self.maze.cells[self.player.y][self.player.x]
+            self.check_pacgum_eating(cell)
+            self.check_super_pacgum_eating(cell)
+
+            for ghost in self.ghosts:
+                self.check_ghost_position(ghost)
 
         if self.is_game_over():
             return
 
-        # for ghost in self.ghosts:
-        #     self.check_ghost_position(ghost)
+        if self.ghost_count >= 100:
+            for ghost in self.ghosts:
+                self.check_ghost_position(ghost)
 
-        #     ghost.update()
-        #     if not self.ghost_freeze:
-        #         ghost.move(self.maze, self.player, self.ghosts)
+                ghost.update()
 
-        #     self.check_ghost_position(ghost)
+                if ghost.respawn_at:
+                    if time.time() >= ghost.respawn_at:
+                        ghost.respawn_at = 0.0
+                        ghost.respawn(self.maze, self.ghosts)
+                    continue
 
-        for ghost in self.ghosts:
-            self.check_ghost_position(ghost)
+                if not self.ghost_freeze:
+                    ghost.move(self.maze, self.player, self.ghosts)
 
-            ghost.update()
+                self.check_ghost_position(ghost)
 
-            if ghost.respawn_at:
-                if time.time() >= ghost.respawn_at:
-                    ghost.respawn_at = 0.0
-                    ghost.respawn(self.maze, self.ghosts)
-                continue
-
-            if not self.ghost_freeze:
-                ghost.move(self.maze, self.player, self.ghosts)
-
-            self.check_ghost_position(ghost)
+            self.ghost_count -= 100
 
     def check_ghost_position(self, ghost: Ghost) -> None:
+        if ghost.respawn_at:
+            return
+
         if self.player.x == ghost.x and self.player.y == ghost.y:
             if ghost.edible:
                 self.eat_ghost(ghost)
@@ -378,7 +361,7 @@ class Game:
         if extra_lives:
             self.player.lives += extra_lives
         if fast_mode:
-            self.player.fast_mode = True
+            self.player_count += 100
 
     def check_pacgum_eating(self, cell: Cell) -> None:
         if cell.pacgum:
