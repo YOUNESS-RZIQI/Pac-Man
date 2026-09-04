@@ -63,7 +63,7 @@ def draw_vertical_line(x, y_start, y_end):
         put_pixel(x, i)
 
     # for i in range(y_start, y_end + 1):
-    #         put_pixel(x + 1, i)
+    #         put_pixel(x + 1, i)   
 
     # for i in range(y_start, y_end + 1):
     #             put_pixel(x + 2, i)
@@ -72,7 +72,7 @@ def draw_vertical_line(x, y_start, y_end):
     #             put_pixel(x + 3, i)
 
 
-
+print("format:", fmt)
 draw_horizontal_line(0, 999, 320)
 draw_vertical_line(0, 0, 600)
 
