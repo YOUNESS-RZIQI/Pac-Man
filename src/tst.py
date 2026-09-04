@@ -1,5 +1,7 @@
 import sys
 from mlx import Mlx
+from maze import Maze, Player, Ghost, Game, Cell
+
 
 mlx_obj = Mlx()
 init_ptr = mlx_obj.mlx_init()
@@ -32,9 +34,9 @@ def put_pixel(x, y):
 
     offset = (y * line_size) + (x * 4)
 
-    img[offset + 0] = 0     #Blue
+    img[offset + 0] = 255     #Blue
     img[offset + 1] = 0     #Green
-    img[offset + 2] = 255   #Red
+    img[offset + 2] = 0   #Red
     img[offset + 3] = 255   # Alpha channel on your system
 
 
@@ -45,14 +47,6 @@ def draw_horizontal_line(x_start, x_end, y):
         return
     for i in range(x_start, x_end + 1):
         put_pixel(i, y)
-    # for i in range(x_start, x_end + 1):
-    #         put_pixel(i, y + 1)
-
-    # for i in range(x_start, x_end + 1):
-    #             put_pixel(i, y + 2)
-
-    # for i in range(x_start, x_end + 1):
-    #             put_pixel(i, y + 3)
 
 
 def draw_vertical_line(x, y_start, y_end):
@@ -62,21 +56,49 @@ def draw_vertical_line(x, y_start, y_end):
     for i in range(y_start, y_end + 1):
         put_pixel(x, i)
 
-    # for i in range(y_start, y_end + 1):
-    #         put_pixel(x + 1, i)   
+# Up (North)
+# Down (South)
+# Left (West)
+# Right (East)
 
-    # for i in range(y_start, y_end + 1):
-    #             put_pixel(x + 2, i)
+CELL_SIZE = 40
 
-    # for i in range(y_start, y_end + 1):
-    #             put_pixel(x + 3, i)
+def draw_cell_walls(x, y, cell: Cell):
+    left = x * CELL_SIZE
+    right = (x + 1) * CELL_SIZE
+    top = y * CELL_SIZE
+    bottom = (y + 1) * CELL_SIZE
+
+    if cell.west:
+        draw_vertical_line(left, top, bottom)
+    if cell.east:
+        draw_vertical_line(right, top, bottom)
+    if cell.north:
+        draw_horizontal_line(left, right, top)
+    if cell.south:
+        draw_horizontal_line(left, right, bottom)
+
+
+def draw_maze(maze):
+    for y in range(len(maze)):
+        for x in range(len(maze[0])):
+            draw_cell_walls(x, y, maze[y][x])
 
 
 print("format:", fmt)
-draw_horizontal_line(0, 999, 320)
-draw_vertical_line(0, 0, 600)
 
-mlx_obj.mlx_put_image_to_window(init_ptr, win_ptr, img_ptr, 0,0)
+MAZE_ROWS = 15
+MAZE_COLMS = 15
+path = "/home/yrziqi/Pac-Man/src/Images/image.xpm"
+maze = Maze(MAZE_ROWS, MAZE_COLMS, 42)
+player = Player(maze.get_center(), 300)
+ghosts = [Ghost(position) for position in maze.get_ghost_positions()]
+game = Game(maze, player, ghosts, time_limit=18099999,
+            pacgum_score=10, super_pacgum_score=50, ghost_score=200)
+
+
+draw_maze(maze.cells)
+mlx_obj.mlx_put_image_to_window(init_ptr, win_ptr, img_ptr, 220, 20)
 
 mlx_obj.mlx_key_hook(win_ptr, key_hook, init_ptr)
 
@@ -86,3 +108,4 @@ mlx_obj.mlx_loop(init_ptr)
 
 
 mlx_obj.mlx_release(init_ptr)
+
