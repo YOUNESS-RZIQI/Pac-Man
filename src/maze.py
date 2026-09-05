@@ -14,10 +14,10 @@ class Direction(Enum):
 
 @dataclass
 class Cell:
-    east: bool = True
-    west: bool = True
-    south: bool = True
-    north: bool = True
+    right: bool = True
+    left: bool = True
+    down: bool = True
+    up: bool = True
 
     is_42: bool = False
     ghost: bool = False
@@ -49,15 +49,15 @@ class Maze:
                 value = self._generator.maze[y][x]
 
                 cell = Cell(
-                    north=bool(value & 1),
-                    east=bool(value & 2),
-                    south=bool(value & 4),
-                    west=bool(value & 8),
+                    up=bool(value & 1),
+                    right=bool(value & 2),
+                    down=bool(value & 4),
+                    left=bool(value & 8),
                 )
 
                 row.append(cell)
 
-                if (cell.north and cell.east and cell.south and cell.west):
+                if (cell.up and cell.right and cell.down and cell.left):
                     cell.is_42 = True
 
             self.cells.append(row)
@@ -81,10 +81,10 @@ class Maze:
         cell = self.cells[y][x]
 
         return not (
-            cell.north
-            and cell.east
-            and cell.south
-            and cell.west
+            cell.up
+            and cell.right
+            and cell.down
+            and cell.left
         )
 
     def can_move(self, x: int, y: int, direction: Direction) -> bool:
@@ -94,16 +94,16 @@ class Maze:
         cell = self.cells[y][x]
 
         if direction == Direction.UP:
-            return not cell.north
+            return not cell.up
 
         if direction == Direction.RIGHT:
-            return not cell.east
+            return not cell.right
 
         if direction == Direction.DOWN:
-            return not cell.south
+            return not cell.down
 
         if direction == Direction.LEFT:
-            return not cell.west
+            return not cell.left
 
         return False
 
@@ -111,7 +111,7 @@ class Maze:
         x, y = self.width // 2, self.height // 2
         centre = self.cells[y][x]
 
-        if centre.east and centre.north and centre.south and centre.west:
+        if centre.right and centre.up and centre.down and centre.left:
             return (self.width - 1) // 2, self.height // 2
         return x, y
 
@@ -219,7 +219,7 @@ class Ghost:
 
         elif self.direction not in possible:
             self.direction = random.choice(possible)
-     
+
         old_x = self.x
         old_y = self.y
 
@@ -251,8 +251,8 @@ class Ghost:
 
         #  check this line >> if ...
         # had l if ila kano joj d lghost f balsa o klahom plyer yaklhom bjoj
-        # if not any(g for g in ghosts if g is not self and g.x == old_x and g.y == old_y):
-        maze.cells[old_y][old_x].ghost = False
+        if not any(g for g in ghosts if g is not self and g.x == old_x and g.y == old_y):
+            maze.cells[old_y][old_x].ghost = False
         if not self.respawn_at:
             maze.cells[self.y][self.x].ghost = True
 

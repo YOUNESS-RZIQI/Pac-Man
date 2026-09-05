@@ -1,231 +1,59 @@
+# Phase 1: Global Asset Loading
+
+        # Load every single .xpm file (Player, Ghosts, Pac-Gums, Super Pac-Gums) at the very top of your script, right after initializing MLX.
+
+        # Store these image pointers in global variables or a dictionary so they are loaded into your computer's RAM exactly once.
+
+# Phase 2: The Static Canvas
+
+        # Strip your draw_maze function down so it only draws the wall lines and empty black spaces into your img_ptr buffer using your put_pixel math.
+
+        # Remove any logic that draws Pac-Gums, Super Pac-Gums, Ghosts, or the Player from this function.
+
+        # Call this modified draw_maze() exactly one time before mlx_loop() starts.
+
+# Phase 3: The Render Hook Sequence
+        # Inside your render_hook, you will now layer everything back-to-front using mlx_put_image_to_window. The order is critical to prevent visual bugs:
+
+        # Layer 1 (Background): Push your pre-drawn img_ptr to the window first. This acts as a clean slate, wiping away the previous frame's ghost and player positions.
+
+        # Layer 2 (Consumables): Loop through your game.maze.cells. If cell.pacgum is True, push the Pac-Gum .xpm to that cell's exact (x * CELL_SIZE, y * CELL_SIZE) coordinate.
+        # If cell.super_pacgum is True, push that image instead.
+
+        # Layer 3 (Ghosts): Loop through your game.ghosts list and push the Ghost .xpm to their current (x, y) coordinates.
+
+        # Layer 4 (Player): Push the Pac-Man .xpm to the window last, ensuring the player always renders on top of dots, background elements, and ghosts.
+
+# Phase 4: Game Logic & Eating Dots
+
+    # In your backend game.update() logic, when Pac-Man's coordinates overlap with a Pac-Gum cell, simply set cell.pacgum = False.
+
+    # Because Layer 2 in your render_hook checks that boolean every single frame, the moment it turns False, the loop skips drawing the image.
+    # The static black background from Layer 1 will naturally show through, making the dot disappear seamlessly without needing to manually erase anything.
+
+
 import sys
-from mlx import Mlx
-from maze import Maze, Player, Ghost, Game, Cell, Direction
 import time
 
+from mlx import Mlx
+from maze import Maze, Player, Ghost, Game, Direction
 
-class Colors:
-    RED        = 0xFF0000FF
-    BLUE       = 0xFFFF0000
-    GREEN      = 0xFF00FF00
-    YELLOW     = 0xFF00FFFF
+# --- Window / cell sizing -------------------------------------------------
+WIDTH, HEIGHT = 1000, 640
+MAZE_ROWS, MAZE_COLMS = 15, 15
+CELL_SIZE = 40  # pixels per maze cell
 
-    ORANGE     = 0xFF0080FF
-    PURPLE     = 0xFFFF00FF
-    PINK       = 0xFFFF80FF
-    CYAN       = 0xFFFFFF00
+# Colors (RGB in 24-bit, like the rest of the codebase)
+COLOR_WALL = 0x4444FF
+COLOR_PATH = 0x222233
+COLOR_PACS = 0xFFFF44
+COLOR_SUPER = 0xFFAA00
+COLOR_PLAYER = 0xFFFF00
+COLOR_GHOST = 0xFF2266
 
-    WHITE      = 0xFFFFFFFF
-    BLACK      = 0xFF000000
-    GRAY       = 0xFF808080
-    DARK_GRAY  = 0xFF404040
-    LIGHT_GRAY = 0xFFC0C0C0
-
-    BROWN      = 0xFF008040
-    GOLD       = 0xFF00D7FF
-    LIME       = 0xFF00FF80
-    NAVY       = 0xFF800000
-
-    TEAL       = 0xFF808000
-    MAGENTA    = 0xFFFF00FF
-    MAROON     = 0xFF000080
-    OLIVE      = 0xFF008080
-
-    SKY_BLUE   = 0xFFEBCE87
-    DARK_BLUE  = 0xFF8B0000
-    DARK_GREEN = 0xFF006400
-    DARK_RED   = 0xFF00008B
-
-mlx_obj = Mlx()
-init_ptr = mlx_obj.mlx_init()
-if not init_ptr:
-    print("Error: mlx_init failed, returned NULL pointer.")
-    sys.exit(1)
-
-win_ptr = mlx_obj.mlx_new_window(init_ptr, 1000, 640, "Pac-Man")
-if not win_ptr:
-    print("Error: mlx_new_window failed, returned NULL pointer.")
-    sys.exit(1)
-
-img_ptr = mlx_obj.mlx_new_image(init_ptr, 1000, 640)
-img, bpp, line_size, fmt = mlx_obj.mlx_get_data_addr(img_ptr)
-
-
-
-def key_hook(keycode: int, param=None) -> None:
-    global current
-    if keycode == 97:  # 'a' -> quit
-        mlx_obj.mlx_loop_exit(init_ptr)
-        mlx_obj.mlx_destroy_window(init_ptr, win_ptr)
-
-    print("key= ", keycode)
-
-    
-def put_pixel(x, y, color = 0xFFFFFFFF):
-    if x < 0 or x >= 1000 or y < 0 or y >= 640:
-        return
-
-    offset = (y * line_size) + (x * 4)
-    img[offset] = (color >> 16) & 0xFF       # B
-    img[offset + 1] = (color >> 8) & 0xFF    # G
-    img[offset + 2] = color & 0xFF           # R
-    img[offset + 3] = 0xFF                   # A
-
-
-
-def draw_horizontal_line(x_start, x_end, y):
-    if x_start > x_end:
-        print("x_start must not be greater then x_end")
-        return
-    for i in range(x_start, x_end + 1):
-        put_pixel(i, y)
-
-
-def draw_vertical_line(x, y_start, y_end):
-    if y_start > y_end:
-        print("x_start must not be greater then x_end")
-        return
-    for i in range(y_start, y_end + 1):
-        put_pixel(x, i)
-
-# Up (North)
-# Down (South)
-# Left (West)
-# Right (East)
-
-CELL_SIZE = 40
-
-def draw_cell_walls(x, y, cell: Cell):
-    left = x * CELL_SIZE
-    right = (x + 1) * CELL_SIZE
-    top = y * CELL_SIZE
-    bottom = (y + 1) * CELL_SIZE
-
-    if cell.west:
-        for i in range(0, 6):
-            draw_vertical_line(left + i, top, bottom)
-
-    if cell.east:
-        for i in range(0, 6):
-            draw_vertical_line(right - i, top, bottom)
-
-    if cell.north:# Up
-        for i in range(0, 6):
-            draw_horizontal_line(left, right, top + i)
-
-    if cell.south:# Down
-        for i in range(0, 6):
-            draw_horizontal_line(left, right, bottom - i)
-
-
-def draw_pacgum(center_x, center_y, color):
-    for y in range(-2, 4):
-        for x in range(-2, 4):
-            put_pixel(center_x + x, center_y + y, color)
-
-def draw_player(center_x, center_y, color):
-    xmp_img, g, w = mlx_obj.mlx_xpm_file_to_image(init_ptr, "/home/yrziqi/Pac-Man/src/Images/pac_40_40.xpm")
-    mlx_obj.mlx_put_image_to_window(init_ptr, win_ptr, xmp_img, center_x, center_y)
-    mlx_obj.mlx_put_image_to_window(init_ptr, win_ptr, xmp_img, 0, 0)
-
-def draw_ghost(center_x, center_y, color):
-    for y in range(-10, 10 + 1):
-        for x in range(-10, 10 + 1):
-            put_pixel(center_x + x, center_y + y, color)
-
-def draw_42(center_x, center_y, color):
-    for y in range(-18, 18):
-        for x in range(-18, 18):
-            put_pixel(center_x + x, center_y + y, color)
-
-def draw_super_pacgum(center_x, center_y, color):
-    for y in range(-5, 5 + 1):
-        for x in range(-5, 5 + 1):
-            put_pixel(center_x + x, center_y + y, color)
-
-
-def clean_cell(x, y):
-    left = x * CELL_SIZE
-    top = y * CELL_SIZE
-
-    for py in range(top, top + CELL_SIZE):
-        for px in range(left, left + CELL_SIZE):
-            put_pixel(px, py, 0xFF000000)
-
-
-def draw_cell(x, y, cell: Cell):
-
-    clean_cell(x, y)
-    draw_cell_walls(x, y, cell)
-
-    center_x = (x * CELL_SIZE) + (CELL_SIZE // 2)
-    center_y = (y * CELL_SIZE) + (CELL_SIZE // 2)
-
-    if cell.pacgum:
-        draw_pacgum(center_x, center_y, Colors.GRAY)
-    if cell.super_pacgum:
-        draw_super_pacgum(center_x, center_y, Colors.PURPLE)
-    if cell.player:
-        draw_player(x * CELL_SIZE, y * CELL_SIZE, Colors.SKY_BLUE)
-        print(f"x = {x * CELL_SIZE}, y = {y* CELL_SIZE}")
-    if cell.ghost:
-        draw_ghost(center_x, center_y, Colors.GOLD)
-    if cell.is_42:
-        draw_42(center_x, center_y, Colors.RED)
-
-def draw_maze(maze):
-    for y in range(len(maze)):
-        for x in range(len(maze[0])):
-            draw_cell(x, y, maze[y][x])
-
-
-print("format:", fmt)
-
-MAZE_ROWS = 9
-MAZE_COLMS = 9
-path = "/home/yrziqi/Pac-Man/src/Images/image.xpm"
+# --- Build maze (same logic as practice.py) -------------------------------
 maze = Maze(MAZE_ROWS, MAZE_COLMS, 42)
 player = Player(maze.get_center_maze(), 300)
 ghosts = [Ghost(position) for position in maze.get_ghost_positions()]
 game = Game(maze, player, ghosts, time_limit=18099999,
             pacgum_score=10, super_pacgum_score=50, ghost_score=200)
-
-current = Direction.UP
-
-
-# def only_one_wal(cells):
-#     for r in range(len(cells)):
-#         for c in range(len(cells[0])):
-#             if c > 0 and c < len(cells) - 1:
-
-                 
-
-def render_hook(param=None) -> None:
-    """Render the current maze state every frame."""
-    game.update(direction=current, player_speed=10, ghost_speed=10)
-    draw_maze((game.maze.cells))
-    mlx_obj.mlx_put_image_to_window(init_ptr, win_ptr, img_ptr, 0, 0)
-
-
-def key_hook(keycode: int, param=None) -> None:
-    global current
-    if keycode == 97:  # 'a' -> quit
-        mlx_obj.mlx_loop_exit(init_ptr)
-        mlx_obj.mlx_destroy_window(init_ptr, win_ptr)
-    if keycode == 65363:
-        current = Direction.RIGHT
-    if keycode == 65361:
-        current = Direction.LEFT
-    if keycode == 65362:
-        current = Direction.UP
-    if keycode == 65364:
-        current = Direction.DOWN
-
-
-mlx_obj.mlx_key_hook(win_ptr, key_hook, init_ptr)
-mlx_obj.mlx_loop_hook(init_ptr, render_hook, None)
-
-mlx_obj.mlx_loop(init_ptr)
-
-mlx_obj.mlx_release(init_ptr)
-
