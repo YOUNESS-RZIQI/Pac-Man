@@ -39,9 +39,8 @@ from mlx import Mlx
 from maze import Maze, Player, Ghost, Game, Direction
 
 # --- Window / cell sizing -------------------------------------------------
-WIDTH, HEIGHT = 1000, 640
 MAZE_ROWS, MAZE_COLMS = 15, 15
-CELL_SIZE = 40  # pixels per maze cell
+CELL_SIZE = 90  # pixels per maze cell
 
 # Colors (RGB in 24-bit, like the rest of the codebase)
 COLOR_WALL = 0x4444FF
@@ -59,6 +58,71 @@ game = Game(maze, player, ghosts, time_limit=18099999,
             pacgum_score=10, super_pacgum_score=50, ghost_score=200)
 current: Direction = Direction.UP
 
+import sys
+
+def load_all_imgs(init_ptr) -> dict:
+
+    player_path_image = "/home/yrziqi/Pac-Man/src/Images/pac_man.xpm"
+    player_img, w, h = mlx_obj.mlx_xpm_file_to_image(init_ptr, player_path_image)
+    if not player_img:
+        print("\033[91mError: player img not found\033[0m")
+        sys.exit(1)
+
+    ghost_path_image = "/home/yrziqi/Pac-Man/src/Images/ghost.xpm"
+    ghost_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, ghost_path_image)
+    if not ghost_img:
+        print("\033[91mError: ghost_img not found\033[0m")
+        sys.exit(1)
+
+    super_path_image = "/home/yrziqi/Pac-Man/src/Images/super_pacgum.xpm"
+    super_pacgum_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, super_path_image)
+    if not super_pacgum_img:
+        print("\033[91mError: super_pacgum_img not found\033[0m")
+        sys.exit(1)
+
+    pacgum_path_image = "/home/yrziqi/Pac-Man/src/Images/pac_gum.xpm"
+    pac_gum_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, pacgum_path_image)
+    if not pac_gum_img:
+        print("\033[91mError: pac_gum_img not found\033[0m")
+        sys.exit(1)
+
+    Down_img_path = "/home/yrziqi/Pac-Man/src/Images/Down.xpm"
+    Down_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, Down_img_path)
+    if not Down_img:
+        print("\033[91mError: Down_img not found\033[0m")
+        sys.exit(1)
+
+    Up_img_path = "/home/yrziqi/Pac-Man/src/Images/Up.xpm"
+    Up_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, Up_img_path)
+    if not Up_img:
+        print("\033[91mError: Up_img not found\033[0m")
+        sys.exit(1)
+
+    Right_img_path = "/home/yrziqi/Pac-Man/src/Images/Right.xpm"
+    Right_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, Right_img_path)
+    if not Right_img:
+        print("\033[91mError: Right_img not found\033[0m")
+        sys.exit(1)
+
+    Left_img_path = "/home/yrziqi/Pac-Man/src/Images/Left.xpm"
+    Left_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, Left_img_path)
+    if not Left_img:
+        print("\033[91mError: Left_img not found\033[0m")
+        sys.exit(1)
+
+
+
+    return {
+        "player": player_img,
+        "ghost": ghost_img,
+        "super_pacgum": super_pacgum_img,
+        "pacgum": pac_gum_img,
+        "down": Down_img,
+        "up": Up_img,
+        "right": Right_img,
+        "left": Left_img,
+
+    }
 
 mlx_obj = Mlx()
 
@@ -66,49 +130,10 @@ init_ptr = mlx_obj.mlx_init()
 if not init_ptr:
     print("Error: init_ptr = Null")
 
-
-player_path_image = "/home/yrziqi/Pac-Man/src/Images/pac_man.xpm"
-player_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, player_path_image)
-if not player_img:
-    print("player img error")
-
-ghost_path_image = "/home/yrziqi/Pac-Man/src/Images/host.xpm"
-ghost_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, ghost_path_image)
-if not ghost_img:
-    print("ghost_img error")
-
-super_path_image = "/home/yrziqi/Pac-Man/src/Images/super_pacgum.xpm"
-super_pacgum_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, super_path_image)
-if not super_pacgum_img:
-    print("super_pacgum_img error")
+_ , WIDTH, HEIGHT = mlx_obj.mlx_get_screen_size(init_ptr)
 
 
-pacgum_path_image = "/home/yrziqi/Pac-Man/src/Images/pac_gum.xpm"
-pac_gum_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, pacgum_path_image)
-if not pac_gum_img:
-    print("pac_gum_img error")
-
-Down_img_path = "/home/yrziqi/Pac-Man/src/Images/Down.xpm"
-Down_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, Down_img_path)
-if not Down_img:
-    print("Down_img error")
-
-Up_img_path = "/home/yrziqi/Pac-Man/src/Images/Up.xpm"
-Up_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, Up_img_path)
-if not Up_img:
-    print("Up_img error")
-
-
-Right_img_path = "/home/yrziqi/Pac-Man/src/Images/Right.xpm"
-Right_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, Right_img_path)
-if not Right_img:
-    print("Right_img error")
-
-
-Left_img_path = "/home/yrziqi/Pac-Man/src/Images/Left.xpm"
-Left_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, Left_img_path)
-if not Left_img:
-    print("Left_img error")
+imgs_dict = load_all_imgs(init_ptr)
 
 
 
@@ -130,8 +155,66 @@ def key_hook(keycode: int, param=None) -> None:
         current = Direction.DOWN
 
 
-def render(param):
-    pass
+# ??
+def put_pixel_on_cell(walls_mem_ptr, walls_linesize, src_mem_ptr, src_linesize, cell_x, cell_y):
+    """Overlay non-transparent pixels from the source sprite onto the destination cell."""
+    start_x = cell_x * CELL_SIZE
+    start_y = cell_y * CELL_SIZE
+    row_bytes = CELL_SIZE * 4  # 4 bytes per pixel (BGRA)
+
+    # Copy row-by-row, only writing non-transparent pixels so multiple
+    # wall images can be composited into the same cell.
+    for y in range(CELL_SIZE):
+        src_offset = y * src_linesize
+        dest_offset = ((start_y + y) * walls_linesize) + (start_x * 4)
+
+        source_data = src_mem_ptr[src_offset : src_offset + row_bytes]
+
+        for b in range(0, row_bytes, 4):
+            # A pixel is transparent when all 4 bytes (BGRA) are 0x00.
+            if source_data[b] != 0 or source_data[b + 1] != 0 or source_data[b + 2] != 0 or source_data[b + 3] != 0:
+                walls_mem_ptr[dest_offset + b] = source_data[b]
+                walls_mem_ptr[dest_offset + b + 1] = source_data[b + 1]
+                walls_mem_ptr[dest_offset + b + 2] = source_data[b + 2]
+                walls_mem_ptr[dest_offset + b + 3] = source_data[b + 3]
+
+
+def put_walls_in_walls_img_pixels(mlx_obj: Mlx, walls_img_ptr, maze_cells, imgs_dict: dict):
+    left_mem_ptr, _, left_linesize, _ = mlx_obj.mlx_get_data_addr(imgs_dict["left"])
+    right_mem_ptr, _, right_linesize, _ = mlx_obj.mlx_get_data_addr(imgs_dict["right"])
+    down_mem_ptr, _, down_linesize, _ = mlx_obj.mlx_get_data_addr(imgs_dict["down"])
+    up_mem_ptr, _, up_linesize, _ = mlx_obj.mlx_get_data_addr(imgs_dict["up"])
+
+
+    walls_mem_ptr, _, linesize, _ = mlx_obj.mlx_get_data_addr(walls_img_ptr)
+
+
+    for y, row in enumerate(maze_cells):
+        for x, cell in enumerate(row):
+
+            if cell.left:
+                put_pixel_on_cell(walls_mem_ptr, linesize, left_mem_ptr, left_linesize, x, y)
+
+            if cell.right:
+                put_pixel_on_cell(walls_mem_ptr, linesize, right_mem_ptr, right_linesize, x, y)
+
+            if cell.up:
+                put_pixel_on_cell(walls_mem_ptr, linesize, up_mem_ptr, up_linesize, x, y)
+
+            if cell.down:
+                put_pixel_on_cell(walls_mem_ptr, linesize, down_mem_ptr, down_linesize, x, y)
+
+
+
+
+
+walls_img_ptr = mlx_obj.mlx_new_image(init_ptr, MAZE_COLMS * CELL_SIZE, MAZE_ROWS * CELL_SIZE)
+put_walls_in_walls_img_pixels(mlx_obj, walls_img_ptr, game.maze.cells, imgs_dict)
+    
+
+def render(param: None = None) -> None:
+    """Render hook: push the pre-drawn walls background to the window."""
+    mlx_obj.mlx_put_image_to_window(init_ptr, win_ptr, walls_img_ptr, 500, 100)
 
 
 mlx_obj.mlx_key_hook(win_ptr, key_hook, init_ptr)

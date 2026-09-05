@@ -1,12 +1,19 @@
+/*
+Yes, exactly. That was the change in the 6 wall sprite files:
+src/Images/Left.xpm, Right.xpm, Up.xpm, Down.xpm, paralel_vertical.xpm, paralel_horizontal.xpm — all had the line:
+"O c white",
+and I changed it to:
+"O c #2e9191"
+*/
 /* XPM */
 static char *out[] = {
 /* columns rows colors chars-per-pixel */
 "90 90 5 1 ",
 "  c None",
-". c #FFFFFE",
-"X c #FFFEFF",
-"o c #FEFFFF",
-"O c white",
+". c #2e9191",
+"X c #2e9191",
+"o c #2e9191",
+"O c #2e9191",
 /* pixels */
 "                                                                                          ",
 "                                                                                          ",
