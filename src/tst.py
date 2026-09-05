@@ -57,3 +57,87 @@ player = Player(maze.get_center_maze(), 300)
 ghosts = [Ghost(position) for position in maze.get_ghost_positions()]
 game = Game(maze, player, ghosts, time_limit=18099999,
             pacgum_score=10, super_pacgum_score=50, ghost_score=200)
+current: Direction = Direction.UP
+
+
+mlx_obj = Mlx()
+
+init_ptr = mlx_obj.mlx_init()
+if not init_ptr:
+    print("Error: init_ptr = Null")
+
+
+player_path_image = "/home/yrziqi/Pac-Man/src/Images/pac_man.xpm"
+player_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, player_path_image)
+if not player_img:
+    print("player img error")
+
+ghost_path_image = "/home/yrziqi/Pac-Man/src/Images/host.xpm"
+ghost_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, ghost_path_image)
+if not ghost_img:
+    print("ghost_img error")
+
+super_path_image = "/home/yrziqi/Pac-Man/src/Images/super_pacgum.xpm"
+super_pacgum_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, super_path_image)
+if not super_pacgum_img:
+    print("super_pacgum_img error")
+
+
+pacgum_path_image = "/home/yrziqi/Pac-Man/src/Images/pac_gum.xpm"
+pac_gum_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, pacgum_path_image)
+if not pac_gum_img:
+    print("pac_gum_img error")
+
+Down_img_path = "/home/yrziqi/Pac-Man/src/Images/Down.xpm"
+Down_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, Down_img_path)
+if not Down_img:
+    print("Down_img error")
+
+Up_img_path = "/home/yrziqi/Pac-Man/src/Images/Up.xpm"
+Up_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, Up_img_path)
+if not Up_img:
+    print("Up_img error")
+
+
+Right_img_path = "/home/yrziqi/Pac-Man/src/Images/Right.xpm"
+Right_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, Right_img_path)
+if not Right_img:
+    print("Right_img error")
+
+
+Left_img_path = "/home/yrziqi/Pac-Man/src/Images/Left.xpm"
+Left_img, _, _ = mlx_obj.mlx_xpm_file_to_image(init_ptr, Left_img_path)
+if not Left_img:
+    print("Left_img error")
+
+
+
+win_ptr = mlx_obj.mlx_new_window(init_ptr, WIDTH, HEIGHT, "Pac-Man Arcade Game")
+
+
+def key_hook(keycode: int, param=None) -> None:
+    global current
+    if keycode == 97:
+        mlx_obj.mlx_loop_exit(init_ptr)
+
+    if keycode == 65363:
+        current = Direction.RIGHT
+    if keycode == 65361:
+        current = Direction.LEFT
+    if keycode == 65362:
+        current = Direction.UP
+    if keycode == 65364:
+        current = Direction.DOWN
+
+
+def render(param):
+    pass
+
+
+mlx_obj.mlx_key_hook(win_ptr, key_hook, init_ptr)
+
+mlx_obj.mlx_loop_hook(init_ptr, render, init_ptr)
+
+mlx_obj.mlx_loop(init_ptr)
+
+mlx_obj.mlx_release(init_ptr)
